@@ -50,6 +50,7 @@ public enum Tokens {
     tk_Multiplicacion,
     tk_Division,
     tk_Coma,
+    tk_comentario,
     tk_opRelacional,
     tk_booleano,
     tk_ParentesisA,

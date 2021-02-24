@@ -314,6 +314,9 @@ public class FrmMain extends javax.swing.JFrame {
                         break;
                     case tk_imports:
                         resultado += lexer.lexeme + ":\t <Es una Palabra Reservada Imports>\t\t" + tokens + "\n";
+                        break; 
+                    case tk_comentario:
+                        resultado += lexer.lexeme + ":\t <Es un comentario>\t\t" + tokens + "\n";
                         break;
                     case tk_sys:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada System>\t\t" + tokens + "\n";

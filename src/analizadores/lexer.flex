@@ -6,6 +6,7 @@ import static analizadores.Tokens.*;
 Digitos=[0-9]
 espacio=[ \s\t\f]
 stringval = [\"].+[\"]
+comentario = [\'].+
 id = [a-zA-Z|\_]+[a-zA-Z|\_|0-9]*
 
 Imports = [I|i][M|m][P|p][O|o][R|r][T|t][S|s]
@@ -58,7 +59,7 @@ Null = [N|n][U|u][L|l][L|l]
 /* Espacios en blanco */
 {espacio} {}
 /* Comentarios */
-( "'" ) {}
+{ comentario } {lexeme=yytext(); return tk_comentario;}
 /* Salto de linea */
 ( "\n" ) {return tk_Linea;}
 
