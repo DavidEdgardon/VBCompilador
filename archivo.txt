@@ -1,1 +1,30 @@
-' sdsdsd
+Imports System
+Imports Microsoft.VisuaLBasic
+
+Public Module Module1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    Public Sub Main()
+        Dim mynumber = 3
+        Dim a As integer  = 20 
+        If mynumber = 2
+            Console.WriteLine("hola 25 hola@hola")
+        End If
+	@ 
+    End Sub
+End Module

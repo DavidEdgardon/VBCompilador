@@ -231,9 +231,15 @@ public class FrmMain extends javax.swing.JFrame {
                     case tk_as:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada As>\t" + tokens + "\n";
                         break;    
-                    case tk_tDato:
-                        resultado += lexer.lexeme + ":\t  <Tipos de Datos>\t\t" + tokens + "\n";
-                        break;   
+                    case tk_integer: 
+                        resultado += lexer.lexeme + ":\t  <Tipos de Datos integer>\t\t" + tokens + "\n";
+                        break;
+                    case tk_boolean:
+                        resultado += lexer.lexeme + ":\t  <Tipos de Datos booleano>\t\t" + tokens + "\n";
+                        break; 
+                    case tk_byval:
+                        resultado += lexer.lexeme + ":\t  <Tipos de Datos byval>\t\t" + tokens + "\n";
+                        break;
                     case tk_String:
                         resultado += lexer.lexeme + ":\t  <Tipo de Dato String>\t\t" + tokens + "\n";
                         break;
@@ -309,9 +315,6 @@ public class FrmMain extends javax.swing.JFrame {
                     case tk_public:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Public>\t\t" + tokens + "\n";
                         break;
-                    case tk_private:
-                        resultado += lexer.lexeme +":\t  <Es una Palabra Reservada Private>\t\t" + tokens + "\n";
-                        break;
                     case tk_imports:
                         resultado += lexer.lexeme + ":\t <Es una Palabra Reservada Imports>\t\t" + tokens + "\n";
                         break; 
@@ -344,19 +347,34 @@ public class FrmMain extends javax.swing.JFrame {
                         break;
                     case tk_punto:
                         resultado += lexer.lexeme + ":\t  <Signo reservado>\t\t" + tokens + "\n";
-                        break;   
+                        break;
+                    case tk_ampersant:
+                        resultado += lexer.lexeme + ":\t  <Signo reservado>\t\t" + tokens + "\n";
+                        break; 
                     case tk_Igual: case tk_Suma: case tk_Resta: case tk_Multiplicacion: case tk_Division:
                         resultado += lexer.lexeme + ":\t  <Es una Operador aritmetico>\t\t" + tokens + "\n";
                         break;
                     case tk_Coma:
                         resultado += lexer.lexeme + ":\t  <Es una coma>\t\t" + tokens + "\n";
                         break;  
-                    case tk_opRelacional:
+                    case tk_mayorque:
                         resultado += lexer.lexeme + ":\t <Es una Operador Relacional>\t\t" + tokens + "\n";
-                        break;  
-                    case tk_booleano:
+                        break;
+                    case tk_menorque:
+                        resultado += lexer.lexeme + ":\t <Es una Operador Relacional>\t\t" + tokens + "\n";
+                        break; 
+                    case tk_mayorigual:
+                        resultado += lexer.lexeme + ":\t <Es una Operador Relacional>\t\t" + tokens + "\n";
+                        break; 
+                    case tk_menorigual:
+                        resultado += lexer.lexeme + ":\t <Es una Operador Relacional>\t\t" + tokens + "\n";
+                        break; 
+                    case tk_true:
                         resultado += lexer.lexeme + ":\t  <Es una valor booleano>\t\t" + tokens + "\n";
-                        break;  
+                        break;
+                    case tk_false:
+                        resultado += lexer.lexeme + ":\t  <Es una valor booleano>\t\t" + tokens + "\n";
+                        break; 
                     case tk_ParentesisA:
                         resultado += lexer.lexeme + ":\t  <Es un parentesis Abiero>\t\t" + tokens + "\n";
                         break;
