@@ -17,3 +17,67 @@ parser code
         return this.s;
 }
 :};
+
+/* Terminales */
+/* Tipos de Datos */
+terminal tk_integer, tk_boolean, tk_String;
+
+/* Por Valor o Por Referencia */
+terminal tk_byval;
+
+/* Estructuras de Control */
+terminal tk_if, tk_then, tk_elseif, tk_else, tk_for, tk_to, tk_loop, tk_while;
+terminal tk_until, tk_next, tk_do;
+
+/* Expresiones Booleanas */
+terminal tk_opBoolean;
+
+/* Funciones */
+terminal tk_function, tk_sub, tk_structure;
+
+/* Operadores Aritmeticos */
+terminal tk_opAritmeticos;
+
+/* Operadores logicos */
+terminal tk_and, tk_or, tk_not, tk_xor;
+
+/*Operadores Relacionales */
+terminal tk_opRelacional;
+
+/* Parentesis */
+terminal tk_ParentesisA, tk_ParentesisC;
+
+/* Simbolos */
+terminal tk_coma, tk_ampersant;
+
+/* palabras reservadas */
+terminal tk_dim, tk_as, tk_exit, tk_return, tk_write, tk_read, tk_end;
+
+/* Valores */
+terminal String tk_valorString;
+terminal String tk_Identificador;
+terminal Integer tk_Numero;
+
+/* Precedencia */
+precedence left tk_Igual;
+precedence left tk_or;
+precedence left tk_xor;
+precedence left tk_and;
+precedence left tk_menorque, tk_menorigual,tk_mayorigual, tk_mayorque, tk_Igual;
+precedence left tk_Suma, tk_Resta, tk_ampersant;
+precedence left tk_Multiplicacion, tk_Division;
+precedence right tk_not;
+precedence nonassoc tk_else;
+
+no terminal IF, IF_ELSE, SETENCIA_IF
+
+IF ::= tk_if Parentesis_a SENTENCIA_BOOLEANA Parentesis_c Llave_a SENTENCIA Llave_c
+;
+
+SENTENCIA_IF ::= 
+    tk_opBoolean | 
+    tk_identificador tk_opRelacional Op_booleano |
+    Identificador Op_relacional Numero |
+    Identificador Op_relacional Identificador |
+    Identificador Op_relacional Comillas Comillas |
+    Identificador Op_relacional Comillas Identificador Comillas

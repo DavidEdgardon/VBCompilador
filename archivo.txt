@@ -10,15 +10,6 @@ Public Module Module1
 
 
 
-
-
-
-
-
-
-
-
-
     Public Sub Main()
         Dim mynumber = 3
         Dim a As integer  = 20 

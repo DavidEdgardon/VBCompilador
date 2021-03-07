@@ -75,14 +75,10 @@ Null = [N|n][U|u][L|l][L|l]
 { stringval } {return new Symbol(sym.tk_valorString, yychar, yyline, yytext());}
 
 /* Tipos de datos */
-{Integer} {return new Symbol(sym.tk_integer, yychar, yyline, yytext());}
-{Boolean} {return new Symbol(sym.tk_dtboolean, yychar, yyline, yytext());}
-(ByVal) {return new Symbol(sym.tk_byval, yychar, yyline, yytext());}
-{ String } {return new Symbol(sym.tk_String, yychar, yyline, yytext());}
+( {Integer} | {Boolean} | {String} | ByVal ) {return new Symbol(sym.tk_tDato, yychar, yyline, yytext());}
 
 /*Operadores Booleanos*/
-{True} {return new Symbol(sym.tk_true, yychar, yyline, yytext());}
-{False} {return new Symbol(sym.tk_false, yychar, yyline, yytext());}
+({True} | {False}) {return new Symbol(sym.tk_opBoolean, yychar, yyline, yytext());}
 
 /* Palabra reservada */
 { If } {return new Symbol(sym.tk_if, yychar, yyline, yytext());}
@@ -120,16 +116,17 @@ Null = [N|n][U|u][L|l][L|l]
 ( Microsoft.VisuaLBasic ) {return new Symbol(sym.tk_lib, yychar, yyline, yytext());}
 
 /* Operadores Aritmeticos*/
-( "=" ) {return new Symbol(sym.tk_Igual, yychar, yyline, yytext());}
-( "+" ) {return new Symbol(sym.tk_Suma, yychar, yyline, yytext());}
-( "-" ) {return new Symbol(sym.tk_Resta, yychar, yyline, yytext());}
-( "*" ) {return new Symbol(sym.tk_Multiplicacion, yychar, yyline, yytext());}
-( "/" ) {return new Symbol(sym.tk_Division, yychar, yyline, yytext());}
+( "+" | "-" | "*" | "/" ) {return new Symbol(sym.tk_opAritmeticos, yychar, yyline, yytext());}
+
+/*Signos reservados*/
 ( "," ) {return new Symbol(sym.tk_Coma, yychar, yyline, yytext());}
 ( "&" ) {return new Symbol(sym.tk_ampersant, yychar, yyline, yytext());}
 ( "." ) {return new Symbol(sym.tk_punto, yychar, yyline, yytext());}
 
 /*Operadores Relacionales */
+( ">" | "<" | ">=" | "<=" | "=") {sym.tk_opRelacional, yychar, yyline, yytext());;}
+
+( "=" ) {return new Symbol(sym.tk_Igual, yychar, yyline, yytext());}
 ( ">" ) {return new Symbol(sym.tk_mayorque, yychar, yyline, yytext());}
 ( "<" ) {return new Symbol(sym.tk_menorque, yychar, yyline, yytext());}
 ( ">=" ) {return new Symbol(sym.tk_mayorigual, yychar, yyline, yytext());}

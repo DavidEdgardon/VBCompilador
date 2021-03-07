@@ -231,17 +231,8 @@ public class FrmMain extends javax.swing.JFrame {
                     case tk_as:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada As>\t" + tokens + "\n";
                         break;    
-                    case tk_integer: 
-                        resultado += lexer.lexeme + ":\t  <Tipos de Datos integer>\t\t" + tokens + "\n";
-                        break;
-                    case tk_boolean:
-                        resultado += lexer.lexeme + ":\t  <Tipos de Datos booleano>\t\t" + tokens + "\n";
-                        break; 
-                    case tk_byval:
-                        resultado += lexer.lexeme + ":\t  <Tipos de Datos byval>\t\t" + tokens + "\n";
-                        break;
-                    case tk_String:
-                        resultado += lexer.lexeme + ":\t  <Tipo de Dato String>\t\t" + tokens + "\n";
+                    case tk_tDato:
+                        resultado += lexer.lexeme + ":\t  <Es un Tipo de Dato>\t\t" + tokens + "\n";
                         break;
                     case tk_if:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada If>\t\t" + tokens + "\n";
@@ -351,30 +342,18 @@ public class FrmMain extends javax.swing.JFrame {
                     case tk_ampersant:
                         resultado += lexer.lexeme + ":\t  <Signo reservado>\t\t" + tokens + "\n";
                         break; 
-                    case tk_Igual: case tk_Suma: case tk_Resta: case tk_Multiplicacion: case tk_Division:
+                    case tk_opAritmeticos:
                         resultado += lexer.lexeme + ":\t  <Es una Operador aritmetico>\t\t" + tokens + "\n";
                         break;
                     case tk_Coma:
                         resultado += lexer.lexeme + ":\t  <Es una coma>\t\t" + tokens + "\n";
-                        break;  
-                    case tk_mayorque:
-                        resultado += lexer.lexeme + ":\t <Es una Operador Relacional>\t\t" + tokens + "\n";
-                        break;
-                    case tk_menorque:
+                        break;       
+                    case tk_opRelacional:
                         resultado += lexer.lexeme + ":\t <Es una Operador Relacional>\t\t" + tokens + "\n";
                         break; 
-                    case tk_mayorigual:
-                        resultado += lexer.lexeme + ":\t <Es una Operador Relacional>\t\t" + tokens + "\n";
-                        break; 
-                    case tk_menorigual:
-                        resultado += lexer.lexeme + ":\t <Es una Operador Relacional>\t\t" + tokens + "\n";
-                        break; 
-                    case tk_true:
+                    case tk_opBoolean:
                         resultado += lexer.lexeme + ":\t  <Es una valor booleano>\t\t" + tokens + "\n";
                         break;
-                    case tk_false:
-                        resultado += lexer.lexeme + ":\t  <Es una valor booleano>\t\t" + tokens + "\n";
-                        break; 
                     case tk_ParentesisA:
                         resultado += lexer.lexeme + ":\t  <Es un parentesis Abiero>\t\t" + tokens + "\n";
                         break;

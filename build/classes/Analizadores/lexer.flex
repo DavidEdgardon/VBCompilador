@@ -78,14 +78,10 @@ Null = [N|n][U|u][L|l][L|l]
 { As } { jline = 0; lexeme=yytext(); return tk_as;}
 
 /* Tipos de datos */
-{Integer} { jline = 0; lexeme=yytext(); return tk_integer;}
-{Boolean} { jline = 0; lexeme=yytext(); return tk_boolean;}
-(ByVal) { jline = 0; lexeme=yytext(); return tk_byval;}
-{ String } { jline = 0; lexeme=yytext(); return tk_String;}
+( {Integer} | {Boolean} | {String} | ByVal ) {jline = 0; lexeme=yytext(); return tk_tDato;}
 
 /*Operadores Booleanos*/
-{True} { jline = 0; lexeme = yytext(); return tk_true;}
-{False} { jline = 0; lexeme = yytext(); return tk_false;}
+({True} | {False}) {jline = 0; lexeme = yytext(); return tk_opBoolean;}
 
 /* Palabra reservada */
 { If } { jline = 0; lexeme=yytext(); return tk_if;}
@@ -123,20 +119,15 @@ Null = [N|n][U|u][L|l][L|l]
 ( Microsoft.VisuaLBasic ) { jline = 0; lexeme=yytext(); return tk_lib;}
 
 /* Operadores Aritmeticos*/
-( "=" ) { jline = 0; lexeme=yytext(); return tk_Igual;}
-( "+" ) { jline = 0; lexeme=yytext(); return tk_Suma;}
-( "-" ) { jline = 0; lexeme=yytext(); return tk_Resta;}
-( "*" ) { jline = 0; lexeme=yytext(); return tk_Multiplicacion;}
-( "/" ) { jline = 0; lexeme=yytext(); return tk_Division;}
+( "+" | "-" | "*" | "/" ) {jline = 0; lexeme=yytext(); return tk_opAritmeticos;}
+
+/*Signos reservados*/
 ( "," ) { jline = 0; lexeme=yytext(); return tk_Coma;}
 ( "&" ) { jline = 0; lexeme=yytext(); return tk_ampersant;}
 ( "." ) { jline = 0; lexeme=yytext(); return tk_punto;}
 
 /*Operadores Relacionales */
-( ">" ) { jline = 0; lexeme = yytext(); return tk_mayorque;}
-( "<" ) { jline = 0; lexeme = yytext(); return tk_menorque;}
-( ">=" ) { jline = 0; lexeme = yytext(); return tk_mayorigual;}
-( "<=" ) { jline = 0; lexeme = yytext(); return tk_menorigual;}
+( ">" | "<" | ">=" | "<=" | "=") { jline = 0; lexeme = yytext(); return tk_opRelacional;}
 
 /* Parentesis*/
 ( "(" ) { jline = 0; lexeme=yytext(); return tk_ParentesisA;}
