@@ -6,7 +6,9 @@
 package analizadores;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Main {
@@ -14,19 +16,44 @@ public class Main {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String ruta1 = "C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Lexer.flex";
-        // String ruta2 = "C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/LexerCup.flex";
-        generarLexer(ruta1);
+        String ruta2 = "C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/lexercup.flex";
+        String[] rutaS = {"-parser", "Gramatica", "C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Gramatica.cup"};
+       // generarLexer(ruta1);
+       generar(ruta1, ruta2, rutaS);
     }
 
-    public static void generarLexer(String ruta1) {
+    /*public static void generarLexer(String ruta1) {
         File archivo;
         archivo = new File(ruta1);
         JFlex.Main.generate(archivo);
-        /*archivo = new File(ruta2);
-        JFlex.Main.generate(archivo);
-         */
-    }
+         
+    }*/
 
+     public static void generar(String ruta1, String ruta2, String[] rutaS) throws IOException, Exception{
+        File archivo;
+        archivo = new File(ruta1);
+        JFlex.Main.generate(archivo);
+        archivo = new File(ruta2);
+        JFlex.Main.generate(archivo);
+        java_cup.Main.main(rutaS);
+        
+        Path rutaSym = Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/sym.java");
+        if (Files.exists(rutaSym)) {
+            Files.delete(rutaSym);
+        }
+        Files.move(
+                Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/sym.java"), 
+                Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/sym.java")
+        );
+        Path rutaSin = Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Gramatica.java");
+        if (Files.exists(rutaSin)) {
+            Files.delete(rutaSin);
+        }
+        Files.move(
+                Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/Gramatica.java"), 
+                Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Gramatica.java")
+        );   
+     }
 }

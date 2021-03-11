@@ -1,8 +1,7 @@
-package Analizadores;
+package analizadores;
 import java_cup.runtime.*;
-import AST.*;
 %%
-%class LexerCup
+%class lexercup
 %type java_cup.runtime.Symbol
 %cup
 %full
@@ -53,6 +52,7 @@ False = [F|f][A|a][L|l][S|s][E|e]
 Like = [L|l][I|i][K|k][E|e]
 Mod = [M|m][O|o][D|d]
 Null = [N|n][U|u][L|l][L|l]
+Step = [S|s][T|t][E|e][P|p]
 
 %{
     private Symbol symbol(int type) {
@@ -75,10 +75,17 @@ Null = [N|n][U|u][L|l][L|l]
 { stringval } {return new Symbol(sym.tk_valorString, yychar, yyline, yytext());}
 
 /* Tipos de datos */
-( {Integer} | {Boolean} | {String} | ByVal ) {return new Symbol(sym.tk_tDato, yychar, yyline, yytext());}
+/*( {Integer} | {Boolean} | {String} | ByVal ) {return new Symbol(sym.tk_tDato, yychar, yyline, yytext());}*/
+{Integer} {return new Symbol(sym.tk_integer, yychar, yyline, yytext());}
+{Boolean} {return new Symbol(sym.tk_boolean, yychar, yyline, yytext());}
+(ByVal) {return new Symbol(sym.tk_byval, yychar, yyline, yytext());}
+{String} {return new Symbol(sym.tk_String, yychar, yyline, yytext());}
+
 
 /*Operadores Booleanos*/
-({True} | {False}) {return new Symbol(sym.tk_opBoolean, yychar, yyline, yytext());}
+/*({True} | {False}) {return new Symbol(sym.tk_opBoolean, yychar, yyline, yytext());}*/
+{True} {return new Symbol(sym.tk_true, yychar, yyline, yytext());}
+{False} {return new Symbol(sym.tk_false, yychar, yyline, yytext());}
 
 /* Palabra reservada */
 { If } {return new Symbol(sym.tk_if, yychar, yyline, yytext());}
@@ -105,7 +112,6 @@ Null = [N|n][U|u][L|l][L|l]
 { Not } {return new Symbol(sym.tk_not, yychar, yyline, yytext());}
 { Xor } {return new Symbol(sym.tk_xor, yychar, yyline, yytext());}
 { Public } {return new Symbol(sym.tk_public, yychar, yyline, yytext());}
-{ Imports } {return new Symbol(sym.tk_imports, yychar, yyline, yytext());}
 { System } {return new Symbol(sym.tk_sys, yychar, yyline, yytext());}
 { Console } {return new Symbol(sym.tk_cs, yychar, yyline, yytext());}
 { WriteLine } {return new Symbol(sym.tk_writeline, yychar, yyline, yytext());}
@@ -113,10 +119,14 @@ Null = [N|n][U|u][L|l][L|l]
 { Like } {return new Symbol(sym.tk_like, yychar, yyline, yytext());}
 { Mod } {return new Symbol(sym.tk_mod, yychar, yyline, yytext());}
 { Null } {return new Symbol(sym.tk_null, yychar, yyline, yytext());}
-( Microsoft.VisuaLBasic ) {return new Symbol(sym.tk_lib, yychar, yyline, yytext());}
+{ Step } {return new Symbol(sym.tk_step, yychar, yyline, yytext());}
 
 /* Operadores Aritmeticos*/
-( "+" | "-" | "*" | "/" ) {return new Symbol(sym.tk_opAritmeticos, yychar, yyline, yytext());}
+/*( "+" | "-" | "*" | "/" ) {return new Symbol(sym.tk_opAritmeticos, yychar, yyline, yytext());}*/
+( "+" ) {return new Symbol(sym.tk_Suma, yychar, yyline, yytext());}
+( "-" ) {return new Symbol(sym.tk_Resta, yychar, yyline, yytext());}
+( "*" ) {return new Symbol(sym.tk_Multiplicacion, yychar, yyline, yytext());}
+( "/" ) {return new Symbol(sym.tk_Division, yychar, yyline, yytext());}
 
 /*Signos reservados*/
 ( "," ) {return new Symbol(sym.tk_Coma, yychar, yyline, yytext());}
@@ -124,13 +134,12 @@ Null = [N|n][U|u][L|l][L|l]
 ( "." ) {return new Symbol(sym.tk_punto, yychar, yyline, yytext());}
 
 /*Operadores Relacionales */
-( ">" | "<" | ">=" | "<=" | "=") {sym.tk_opRelacional, yychar, yyline, yytext());;}
-
-( "=" ) {return new Symbol(sym.tk_Igual, yychar, yyline, yytext());}
+/*( ">" | "<" | ">=" | "<=" | "=") {sym.tk_opRelacional, yychar, yyline, yytext());;}*/
 ( ">" ) {return new Symbol(sym.tk_mayorque, yychar, yyline, yytext());}
 ( "<" ) {return new Symbol(sym.tk_menorque, yychar, yyline, yytext());}
 ( ">=" ) {return new Symbol(sym.tk_mayorigual, yychar, yyline, yytext());}
 ( "<=" ) {return new Symbol(sym.tk_menorigual, yychar, yyline, yytext());}
+( "=" ) {return new Symbol(sym.tk_Igual, yychar, yyline, yytext());}
 
 /* Parentesis*/
 ( "(" ) {return new Symbol(sym.tk_ParentesisA, yychar, yyline, yytext());}
@@ -142,5 +151,5 @@ Null = [N|n][U|u][L|l][L|l]
 {Digitos}+ {return new Symbol(sym.tk_Numero, yychar, yyline, yytext());}
 
 /* Error de analisis */
- . {return ERROR;}
+ . {return new Symbol(sym.ERROR, yychar, yyline, yytext());}
 
