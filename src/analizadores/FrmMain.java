@@ -264,7 +264,7 @@ public class FrmMain extends javax.swing.JFrame {
                     case tk_integer: case tk_byval: case tk_boolean: case tk_String:
                         resultado += lexer.lexeme + ":\t  <Es un Tipo de Dato>\t\t" + tokens + "\n";
                         break;
-                    case tk_if: case tk_else: case tk_step:
+                    case tk_if: case tk_else: case tk_step: case tk_main:
                         resultado += lexer.lexeme +":\t  <Es una Palabra Reservada>\t\t" + tokens + "\n";
                         break;
                     case tk_do:

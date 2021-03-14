@@ -20,16 +20,9 @@ public class Main {
         String ruta1 = "C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Lexer.flex";
         String ruta2 = "C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/lexercup.flex";
         String[] rutaS = {"-parser", "Gramatica", "C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Gramatica.cup"};
-       // generarLexer(ruta1);
-       generar(ruta1, ruta2, rutaS);
+        generar(ruta1, ruta2, rutaS);
     }
 
-    /*public static void generarLexer(String ruta1) {
-        File archivo;
-        archivo = new File(ruta1);
-        JFlex.Main.generate(archivo);
-         
-    }*/
 
      public static void generar(String ruta1, String ruta2, String[] rutaS) throws IOException, Exception{
         File archivo;

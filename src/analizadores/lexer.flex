@@ -15,7 +15,7 @@ System = [S|s][Y|y][S|s][T|t][E|e][M|m]
 Module = [M|m][O|o][D|d][U|u][L|l][E|e]
 Write = [W|w][R|r][I|i][T|t][E|e]
 Read = [R|r][E|e][A|a][D|d]
-Sub = [S|u][U|u][B|b]
+Sub = [S|s][U|u][B|b]
 For = [F|f][O|o][R|r]
 If = [I|i][F|f]
 Dim = [D|d][I|i][M|m]
@@ -51,7 +51,7 @@ Like = [L|l][I|i][K|k][E|e]
 Mod = [M|m][O|o][D|d]
 Null = [N|n][U|u][L|l][L|l]
 Step = [S|s][T|t][E|e][P|p]
-
+Main = [M|m][A|a][I|i][N|n]
 %{
     public String lexeme;
     int jline = 0;
@@ -92,6 +92,7 @@ Step = [S|s][T|t][E|e][P|p]
 
 
 /* Palabra reservada */
+{ Main } { jline = 0; lexeme=yytext(); return tk_main;}
 { If } { jline = 0; lexeme=yytext(); return tk_if;}
 { Else } { jline = 0; lexeme=yytext(); return tk_else;}
 { Do } { jline = 0; lexeme=yytext(); return tk_do;}

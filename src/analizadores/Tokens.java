@@ -10,6 +10,7 @@ package analizadores;
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
 public enum Tokens {
+    tk_main,
     tk_valorString,
     tk_Linea,
     tk_dim,

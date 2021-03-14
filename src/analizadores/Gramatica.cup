@@ -1,17 +1,17 @@
-package Analizadores;
+package analizadores;
 
 import java_cup.runtime.Symbol;
 
 parser code
 {:
-    private Symbol s;
+    private Symbol sym;
     
-    public void syntax_error(Symbol s){
-        this.s = s;
+    public void syntax_error(Symbol sym){
+        this.sym = sym;
     }
 
     public Symbol getS(){
-        return this.s;
+        return this.sym;
 }
 :};
 
@@ -51,40 +51,60 @@ terminal tk_ParentesisA, tk_ParentesisC;
 terminal tk_Coma, tk_ampersant, tk_punto;
 
 /* palabras reservadas */
-terminal tk_dim, tk_as, tk_exit, tk_return, tk_write, tk_read, tk_end;
+terminal tk_dim, tk_as, tk_exit, tk_return, tk_write, tk_read, tk_end, tk_main;
 
-terminal EMPTY;
 
 /* Valores */
 terminal String tk_valorString;
 terminal String tk_Identificador;
 terminal Integer tk_Numero;
 
-non terminal INICIO, OPCPROCESO , PARAMETROS, PARAMETROSPRIMA, VARIABLE, TIPOD, OPCBOOL, CUERPOFUNC, CUERPOPRO, CUERPOSTRUC, CICLOS,SINTAXIF, SENTENCIAIF,
-            CONDICION, SINTAXFOR,OPCRELACIONALES, AUMDEC, SINTAXWHILE, SENTENCIAPRIMA, iDNUM, VALOR, VARIABLEPRIMA;
+non terminal INICIO, OPCPROCESO , PARAMETROS, PARAMETROSPRIMA,PARAMETROSAUX, VARIABLE, TIPOD, OPCBOOL, CUERPOFUNC, CUERPOPRO, CUERPOMAIN, CUERPOSTRUC, CICLOS,SINTAXIF,
+             SENTENCIAIF,SENTENCIAIFAUX, CONDICION, SINTAXFOR,OPCRELACIONALES, AUMDEC, SINTAXWHILE, SENTENCIAPRIMA, iDNUM, VALOR, VARIABLEPRIMA,
+             SENTENCIACICLOS , LLAMADAFUNC, IDENTIFICADORES, IDENTIFICADORESPRIMA, SENTENCIAWHILE, SENTENCIAFOR, OPERACIONES, 
+             OPEARITMETICA, IDENTIFICADORESUB;
+
+precedence left tk_Igual;
+precedence left tk_Suma,tk_Resta;
+precedence left tk_Multiplicacion,tk_Division;
+precedence left tk_mod;
 
 start with INICIO;
 
-INICIO ::= tk_public tk_module tk_Identificador OPCPROCESO;
+INICIO ::= tk_public tk_module tk_Identificador CUERPOMAIN;
 
-OPCPROCESO ::= tk_public tk_sub tk_Identificador tk_ParentesisA PARAMETROS tk_ParentesisC CUERPOPRO|
-                tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS tk_ParentesisC tk_as TIPOD CUERPOFUNC|
-                tk_structure tk_Identificador CUERPOSTRUC;
+OPCPROCESO ::= tk_public tk_sub tk_Identificador tk_ParentesisA PARAMETROS CUERPOPRO OPCPROCESO|
+                tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS tk_as TIPOD CUERPOFUNC OPCPROCESO|
+                tk_sub tk_main tk_ParentesisA tk_ParentesisC |
+                tk_structure tk_Identificador CUERPOSTRUC OPCPROCESO
+                | tk_Coma;
 
-PARAMETROS ::= VARIABLE PARAMETROSPRIMA; 
+CUERPOMAIN ::= tk_end tk_sub;
 
-PARAMETROSPRIMA ::=  tk_Coma VARIABLE PARAMETROSPRIMA | EMPTY;  
+PARAMETROSAUX ::= tk_byval
+        | tk_Identificador;
+
+PARAMETROS ::= PARAMETROSAUX tk_as TIPOD PARAMETROSPRIMA;
+
+PARAMETROSPRIMA ::=  tk_Coma PARAMETROSAUX tk_as TIPOD PARAMETROSPRIMA 
+                | tk_ParentesisC;
 
 VALOR ::= OPCBOOL | iDNUM | tk_valorString ;
 
-VARIABLE ::= tk_Identificador tk_as TIPOD |
-                tk_dim tk_Identificador tk_as TIPOD VARIABLEPRIMA;
-
-VARIABLEPRIMA ::= tk_Igual VALOR | EMPTY;
+VARIABLE ::=tk_dim tk_Identificador tk_as TIPOD |
+            tk_dim tk_Identificador tk_as TIPOD tk_Igual VALOR|
+            tk_dim tk_Identificador tk_as TIPOD VARIABLE | 
+            tk_dim tk_Identificador tk_as TIPOD tk_Igual VALOR VARIABLE|
+            tk_dim tk_Identificador tk_as TIPOD tk_Igual LLAMADAFUNC |
+            tk_Identificador tk_Igual VALOR|
+            tk_Identificador tk_Igual LLAMADAFUNC; 
+/*Dim a as integer = 5 , Dim a as integer, Dim a as integer = raiz(5) (dejar que deje hacer muchos dim)*/
+/* LALR PERMITE ESTE TIPO DE GRAMATICA */
+// Dim x As Integer = 2 + 2
 
 OPCBOOL ::= tk_true | tk_false;
 
-TIPOD ::= tk_String | tk_integer | tk_byval | tk_boolean;
+TIPOD ::= tk_String | tk_integer | tk_boolean;
 
 CICLOS ::=  SINTAXWHILE | SINTAXFOR;
 
@@ -94,18 +114,38 @@ OPCRELACIONALES ::= tk_mayorque |
                     tk_menorigual |
                     tk_Igual;
 
-SINTAXIF ::= tk_if CONDICION tk_then;
+SINTAXIF ::= tk_if CONDICION tk_then SENTENCIAIF tk_end tk_if
+            | tk_if CONDICION tk_then SENTENCIAIF tk_else SENTENCIAIF tk_end tk_if 
+            | tk_if CONDICION tk_then SENTENCIAIF tk_elseif CONDICION tk_then SENTENCIAIF tk_else  tk_end tk_if;
 
 iDNUM ::= tk_Identificador | tk_Numero;
 
-CONDICION ::= iDNUM OPCRELACIONALES iDNUM |
-            iDNUM OPCRELACIONALES OPCBOOL |
-            OPCBOOL;
+CONDICION ::= iDNUM OPCRELACIONALES iDNUM 
+            | iDNUM OPCRELACIONALES OPCBOOL 
+            | iDNUM OPCRELACIONALES LLAMADAFUNC
+            | OPCBOOL;
 
-SINTAXFOR ::= tk_for tk_Identificador tk_Igual tk_Numero tk_to tk_Numero tk_step AUMDEC;
+SINTAXFOR ::= tk_for tk_Identificador tk_Igual tk_Numero tk_to tk_Numero tk_step AUMDEC  tk_next tk_Identificador;
 
-AUMDEC ::= tk_Resta tk_Numero | tk_Numero ;
+AUMDEC ::= tk_Resta tk_Numero 
+        | tk_Numero ;
 
-SINTAXWHILE ::= tk_do tk_while CONDICION ;
+OPERACIONES ::= iDNUM OPEARITMETICA OPERACIONES
+                | iDNUM;
 
-SENTENCIAIF ::= CICLOS | SINTAXIF | VARIABLE ;
+OPEARITMETICA ::= tk_Suma | tk_Resta | tk_Multiplicacion | tk_Division; 
+
+SINTAXWHILE ::= tk_do tk_while CONDICION  tk_loop ;
+
+IDENTIFICADORES ::= tk_Identificador IDENTIFICADORESPRIMA ;
+
+IDENTIFICADORESPRIMA ::= tk_Coma tk_Identificador IDENTIFICADORESPRIMA
+                    | tk_ParentesisC ;
+
+IDENTIFICADORESUB ::= tk_Identificador |
+                        tk_Identificador tk_Coma IDENTIFICADORESUB ;
+
+LLAMADAFUNC ::= tk_Identificador tk_ParentesisA IDENTIFICADORES 
+            | tk_Identificador  IDENTIFICADORESUB  
+            | tk_Identificador tk_ParentesisA tk_ParentesisA IDENTIFICADORES  
+            | tk_Identificador tk_ParentesisA IDENTIFICADORES  tk_Coma IDENTIFICADORES; 

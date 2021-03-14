@@ -1,5 +1,6 @@
 package analizadores;
-import java_cup.runtime.*;
+import java_cup.runtime.Symbol;
+
 %%
 %class lexercup
 %type java_cup.runtime.Symbol
@@ -8,7 +9,7 @@ import java_cup.runtime.*;
 %line
 %char
 Digitos=[0-9]
-espacio=[ \s\t\f]
+espacio=[ ,\t,\r,\n]+
 stringval = [\"].+[\"]
 id = [a-zA-Z|\_]+[a-zA-Z|\_|0-9]*
 
@@ -18,7 +19,7 @@ System = [S|s][Y|y][S|s][T|t][E|e][M|m]
 Module = [M|m][O|o][D|d][U|u][L|l][E|e]
 Write = [W|w][R|r][I|i][T|t][E|e]
 Read = [R|r][E|e][A|a][D|d]
-Sub = [S|u][U|u][B|b]
+Sub = [S|s][U|u][B|b]
 For = [F|f][O|o][R|r]
 If = [I|i][F|f]
 Dim = [D|d][I|i][M|m]
@@ -53,13 +54,14 @@ Like = [L|l][I|i][K|k][E|e]
 Mod = [M|m][O|o][D|d]
 Null = [N|n][U|u][L|l][L|l]
 Step = [S|s][T|t][E|e][P|p]
+Main = [M|m][A|a][I|i][N|n]
 
 %{
-    private Symbol symbol(int type) {
-        return new Symbol(type, yyline, yycolumn);
-    }
-    private Symbol symbol(int type, Object value) {
+    private Symbol symbol(int type, Object value){
         return new Symbol(type, yyline, yycolumn, value);
+    }
+    private Symbol symbol(int type){
+        return new Symbol(type, yyline, yycolumn);
     }
 %}
 %%
@@ -75,19 +77,17 @@ Step = [S|s][T|t][E|e][P|p]
 { stringval } {return new Symbol(sym.tk_valorString, yychar, yyline, yytext());}
 
 /* Tipos de datos */
-/*( {Integer} | {Boolean} | {String} | ByVal ) {return new Symbol(sym.tk_tDato, yychar, yyline, yytext());}*/
 {Integer} {return new Symbol(sym.tk_integer, yychar, yyline, yytext());}
 {Boolean} {return new Symbol(sym.tk_boolean, yychar, yyline, yytext());}
 (ByVal) {return new Symbol(sym.tk_byval, yychar, yyline, yytext());}
 {String} {return new Symbol(sym.tk_String, yychar, yyline, yytext());}
 
-
 /*Operadores Booleanos*/
-/*({True} | {False}) {return new Symbol(sym.tk_opBoolean, yychar, yyline, yytext());}*/
 {True} {return new Symbol(sym.tk_true, yychar, yyline, yytext());}
 {False} {return new Symbol(sym.tk_false, yychar, yyline, yytext());}
 
 /* Palabra reservada */
+{ Main } {return new Symbol(sym.tk_main, yychar, yyline, yytext());}
 { If } {return new Symbol(sym.tk_if, yychar, yyline, yytext());}
 { Else } {return new Symbol(sym.tk_else, yychar, yyline, yytext());}
 { Do } {return new Symbol(sym.tk_do, yychar, yyline, yytext());}
@@ -122,7 +122,6 @@ Step = [S|s][T|t][E|e][P|p]
 { Step } {return new Symbol(sym.tk_step, yychar, yyline, yytext());}
 
 /* Operadores Aritmeticos*/
-/*( "+" | "-" | "*" | "/" ) {return new Symbol(sym.tk_opAritmeticos, yychar, yyline, yytext());}*/
 ( "+" ) {return new Symbol(sym.tk_Suma, yychar, yyline, yytext());}
 ( "-" ) {return new Symbol(sym.tk_Resta, yychar, yyline, yytext());}
 ( "*" ) {return new Symbol(sym.tk_Multiplicacion, yychar, yyline, yytext());}
@@ -134,7 +133,6 @@ Step = [S|s][T|t][E|e][P|p]
 ( "." ) {return new Symbol(sym.tk_punto, yychar, yyline, yytext());}
 
 /*Operadores Relacionales */
-/*( ">" | "<" | ">=" | "<=" | "=") {sym.tk_opRelacional, yychar, yyline, yytext());;}*/
 ( ">" ) {return new Symbol(sym.tk_mayorque, yychar, yyline, yytext());}
 ( "<" ) {return new Symbol(sym.tk_menorque, yychar, yyline, yytext());}
 ( ">=" ) {return new Symbol(sym.tk_mayorigual, yychar, yyline, yytext());}
@@ -147,6 +145,7 @@ Step = [S|s][T|t][E|e][P|p]
 
 /* Identificador */
 {id} {return new Symbol(sym.tk_Identificador, yychar, yyline, yytext());}
+
 /* Numero */
 {Digitos}+ {return new Symbol(sym.tk_Numero, yychar, yyline, yytext());}
 
