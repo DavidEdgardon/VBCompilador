@@ -29,7 +29,7 @@ WriteLine = [W|w][R|r][I|i][T|t][E|e][L|l][I|i][N|n][E|e]
 As = [A|a][S|s]
 Do = [D|d][O|o]
 While =[W|w][H|h][I|i][L|l][E|e]
-Structure = [S|s][T|t][R|r][U|u][C|c][T|t]
+Structure = [S|s][T|t][R|r][U|u][C|c][T|t][U|u][R|r][E|e]
 Then = [T|t][H|h][E|e][N|n]
 Else = [E|e][L|l][S|s][E|e]
 ElseIf = [E|e][L|l][S|s][E|e][I|i][F|f]
@@ -52,6 +52,8 @@ Mod = [M|m][O|o][D|d]
 Null = [N|n][U|u][L|l][L|l]
 Step = [S|s][T|t][E|e][P|p]
 Main = [M|m][A|a][I|i][N|n]
+ByVal = [B|b][Y|y][V|v][A|a][L|l]
+
 %{
     public String lexeme;
     int jline = 0;
@@ -82,7 +84,7 @@ Main = [M|m][A|a][I|i][N|n]
 /*( {Integer} | {Boolean} | {String} | ByVal ) {jline = 0; lexeme=yytext(); return tk_tDato;}*/
 {Integer} { jline = 0; lexeme=yytext(); return tk_integer;}
 {Boolean} { jline = 0; lexeme=yytext(); return tk_boolean;}
-(ByVal) { jline = 0; lexeme=yytext(); return tk_byval;}
+{ ByVal } { jline = 0; lexeme=yytext(); return tk_byval;}
 { String } { jline = 0; lexeme=yytext(); return tk_String;}
 
 /*Operadores Booleanos*/

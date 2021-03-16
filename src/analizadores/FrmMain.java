@@ -86,7 +86,7 @@ public class FrmMain extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(204, 204, 255));
 
-        jPanel2.setBackground(new java.awt.Color(0, 204, 204));
+        jPanel2.setBackground(new java.awt.Color(204, 255, 204));
         jPanel2.setForeground(new java.awt.Color(60, 63, 65));
 
         btnAnalizar.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
@@ -106,6 +106,7 @@ public class FrmMain extends javax.swing.JFrame {
         });
 
         txtEntrada.setColumns(20);
+        txtEntrada.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         txtEntrada.setRows(5);
         jScrollPane3.setViewportView(txtEntrada);
 
@@ -366,7 +367,7 @@ public class FrmMain extends javax.swing.JFrame {
                     case tk_Suma: case tk_Resta: case tk_Multiplicacion: case tk_Division:
                         resultado += lexer.lexeme + ":\t  <Es una Operador aritmetico>\t\t" + tokens + "\n";
                         break;
-                    case tk_Coma:
+                    case tk_Coma: case tk_Igual:
                         resultado += lexer.lexeme + ":\t  <Signo reservado>\t\t" + tokens + "\n";
                         break;       
                     case tk_mayorque: case tk_mayorigual: case tk_menorque: case tk_menorigual:

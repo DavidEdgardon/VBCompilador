@@ -23,21 +23,20 @@ public class Main {
         generar(ruta1, ruta2, rutaS);
     }
 
-
-     public static void generar(String ruta1, String ruta2, String[] rutaS) throws IOException, Exception{
+    public static void generar(String ruta1, String ruta2, String[] rutaS) throws IOException, Exception {
         File archivo;
         archivo = new File(ruta1);
         JFlex.Main.generate(archivo);
         archivo = new File(ruta2);
         JFlex.Main.generate(archivo);
         java_cup.Main.main(rutaS);
-        
+
         Path rutaSym = Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/sym.java");
         if (Files.exists(rutaSym)) {
             Files.delete(rutaSym);
         }
         Files.move(
-                Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/sym.java"), 
+                Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/sym.java"),
                 Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/sym.java")
         );
         Path rutaSin = Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Gramatica.java");
@@ -45,8 +44,8 @@ public class Main {
             Files.delete(rutaSin);
         }
         Files.move(
-                Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/Gramatica.java"), 
+                Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/Gramatica.java"),
                 Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Gramatica.java")
-        );   
-     }
+        );
+    }
 }

@@ -16,7 +16,7 @@ public class sym {
   public static final int tk_step = 20;
   public static final int tk_to = 17;
   public static final int tk_false = 25;
-  public static final int tk_valorString = 58;
+  public static final int tk_valorString = 59;
   public static final int tk_Resta = 32;
   public static final int tk_mayorigual = 41;
   public static final int tk_public = 29;
@@ -63,12 +63,13 @@ public class sym {
   public static final int tk_else = 15;
   public static final int tk_read = 55;
   public static final int tk_end = 56;
-  public static final int tk_Numero = 60;
+  public static final int tk_Numero = 61;
+  public static final int tk_Linea = 58;
   public static final int tk_return = 53;
   public static final int tk_then = 13;
   public static final int tk_punto = 49;
   public static final int tk_menorque = 42;
-  public static final int tk_Identificador = 59;
+  public static final int tk_Identificador = 60;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
@@ -128,6 +129,7 @@ public class sym {
   "tk_read",
   "tk_end",
   "tk_main",
+  "tk_Linea",
   "tk_valorString",
   "tk_Identificador",
   "tk_Numero"

@@ -9,7 +9,8 @@ import java_cup.runtime.Symbol;
 %line
 %char
 Digitos=[0-9]
-espacio=[ ,\t,\r,\n]+
+espacio=[ \t]+
+salto = [\n\r]+
 stringval = [\"].+[\"]
 id = [a-zA-Z|\_]+[a-zA-Z|\_|0-9]*
 
@@ -33,7 +34,7 @@ WriteLine = [W|w][R|r][I|i][T|t][E|e][L|l][I|i][N|n][E|e]
 As = [A|a][S|s]
 Do = [D|d][O|o]
 While =[W|w][H|h][I|i][L|l][E|e]
-Structure = [S|s][T|t][R|r][U|u][C|c][T|t]
+Structure = [S|s][T|t][R|r][U|u][C|c][T|t][U|u][R|r][E|e]
 Then = [T|t][H|h][E|e][N|n]
 Else = [E|e][L|l][S|s][E|e]
 ElseIf = [E|e][L|l][S|s][E|e][I|i][F|f]
@@ -55,6 +56,7 @@ Mod = [M|m][O|o][D|d]
 Null = [N|n][U|u][L|l][L|l]
 Step = [S|s][T|t][E|e][P|p]
 Main = [M|m][A|a][I|i][N|n]
+ByVal = [B|b][Y|y][V|v][A|a][L|l]
 
 %{
     private Symbol symbol(int type, Object value){
@@ -69,6 +71,8 @@ Main = [M|m][A|a][I|i][N|n]
 /* Espacios en blanco */
 {espacio} {}
 
+{salto} {return new Symbol(sym.tk_Linea, yychar, yyline, yytext());}
+
 /* Declaracion de variable */ 
 { Dim } {return new Symbol(sym.tk_dim, yychar, yyline, yytext());}
 { As } {return new Symbol(sym.tk_as, yychar, yyline, yytext());}
@@ -79,7 +83,7 @@ Main = [M|m][A|a][I|i][N|n]
 /* Tipos de datos */
 {Integer} {return new Symbol(sym.tk_integer, yychar, yyline, yytext());}
 {Boolean} {return new Symbol(sym.tk_boolean, yychar, yyline, yytext());}
-(ByVal) {return new Symbol(sym.tk_byval, yychar, yyline, yytext());}
+{ByVal} {return new Symbol(sym.tk_byval, yychar, yyline, yytext());}
 {String} {return new Symbol(sym.tk_String, yychar, yyline, yytext());}
 
 /*Operadores Booleanos*/
