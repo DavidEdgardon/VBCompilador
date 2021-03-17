@@ -12,6 +12,7 @@ Digitos=[0-9]
 espacio=[ \t]+
 salto = [\n\r]+
 stringval = [\"].+[\"]
+comentario = [\'].+
 id = [a-zA-Z|\_]+[a-zA-Z|\_|0-9]*
 
 Imports = [I|i][M|m][P|p][O|o][R|r][T|t][S|s]
@@ -19,7 +20,7 @@ Public = [P|p][U|u][B|b][L|l][I|i][C|c]
 System = [S|s][Y|y][S|s][T|t][E|e][M|m]
 Module = [M|m][O|o][D|d][U|u][L|l][E|e]
 Write = [W|w][R|r][I|i][T|t][E|e]
-Read = [R|r][E|e][A|a][D|d]
+ReadLine = [R|r][E|e][A|a][D|d][L|l][I|i][N|n][E|e]
 Sub = [S|s][U|u][B|b]
 For = [F|f][O|o][R|r]
 If = [I|i][F|f]
@@ -71,6 +72,9 @@ ByVal = [B|b][Y|y][V|v][A|a][L|l]
 /* Espacios en blanco */
 {espacio} {}
 
+/* Comentarios */
+{ comentario } {return new Symbol(sym.tk_comentario, yychar, yyline, yytext());}
+
 {salto} {return new Symbol(sym.tk_Linea, yychar, yyline, yytext());}
 
 /* Declaracion de variable */ 
@@ -110,7 +114,7 @@ ByVal = [B|b][Y|y][V|v][A|a][L|l]
 { Return } {return new Symbol(sym.tk_return, yychar, yyline, yytext());}
 { Structure } {return new Symbol(sym.tk_structure, yychar, yyline, yytext());}
 { Write } {return new Symbol(sym.tk_write, yychar, yyline, yytext());}
-{ Read } {return new Symbol(sym.tk_read, yychar, yyline, yytext());}
+{ ReadLine } {return new Symbol(sym.tk_readline, yychar, yyline, yytext());}
 { And } {return new Symbol(sym.tk_and, yychar, yyline, yytext());}
 { Or } {return new Symbol(sym.tk_or, yychar, yyline, yytext());}
 { Not } {return new Symbol(sym.tk_not, yychar, yyline, yytext());}
@@ -130,6 +134,9 @@ ByVal = [B|b][Y|y][V|v][A|a][L|l]
 ( "-" ) {return new Symbol(sym.tk_Resta, yychar, yyline, yytext());}
 ( "*" ) {return new Symbol(sym.tk_Multiplicacion, yychar, yyline, yytext());}
 ( "/" ) {return new Symbol(sym.tk_Division, yychar, yyline, yytext());}
+( "%" ) {return new Symbol(sym.tk_Signomod, yychar, yyline, yytext());}
+( "^" ) {return new Symbol(sym.tk_Potencia, yychar, yyline, yytext());}
+
 
 /*Signos reservados*/
 ( "," ) {return new Symbol(sym.tk_Coma, yychar, yyline, yytext());}

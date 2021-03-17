@@ -14,7 +14,7 @@ Public = [P|p][U|u][B|b][L|l][I|i][C|c]
 System = [S|s][Y|y][S|s][T|t][E|e][M|m]
 Module = [M|m][O|o][D|d][U|u][L|l][E|e]
 Write = [W|w][R|r][I|i][T|t][E|e]
-Read = [R|r][E|e][A|a][D|d]
+ReadLine = [R|r][E|e][A|a][D|d][L|l][I|i][N|n][E|e]
 Sub = [S|s][U|u][B|b]
 For = [F|f][O|o][R|r]
 If = [I|i][F|f]
@@ -113,7 +113,7 @@ ByVal = [B|b][Y|y][V|v][A|a][L|l]
 { Return } { jline = 0; lexeme=yytext(); return tk_return;}
 { Structure } { jline = 0; lexeme=yytext(); return tk_structure;}
 { Write } { jline = 0; lexeme=yytext(); return tk_write;}
-{ Read } { jline = 0; lexeme=yytext(); return tk_read;}
+{ ReadLine } { jline = 0; lexeme=yytext(); return tk_readline;}
 { And } { jline = 0; lexeme=yytext(); return tk_and;}
 { Or } { jline = 0; lexeme=yytext(); return tk_or;}
 { Not } { jline = 0; lexeme=yytext(); return tk_not;}
@@ -134,6 +134,9 @@ ByVal = [B|b][Y|y][V|v][A|a][L|l]
 ( "-" ) { jline = 0; lexeme=yytext(); return tk_Resta;}
 ( "*" ) { jline = 0; lexeme=yytext(); return tk_Multiplicacion;}
 ( "/" ) { jline = 0; lexeme=yytext(); return tk_Division;}
+( "%" ) { jline = 0; lexeme=yytext(); return tk_Signomod;}
+( "^" ) { jline = 0; lexeme=yytext(); return tk_Potencia;}
+
 
 /*Signos reservados*/
 ( "," ) { jline = 0; lexeme=yytext(); return tk_Coma;}

@@ -17,7 +17,7 @@ parser code
 
 /* Terminales */
 
-terminal tk_writeline, tk_like, tk_sys, tk_cs, tk_null, ERROR;
+terminal tk_writeline, tk_like, tk_sys, tk_cs, tk_null, ERROR, tk_comentario;
 
 /* Tipos de Datos */
 terminal tk_integer, tk_boolean, tk_String;
@@ -36,7 +36,7 @@ terminal tk_true, tk_false;
 terminal tk_function, tk_sub, tk_structure, tk_public, tk_module;
 
 /* Operadores Aritmeticos */
-terminal tk_Suma,tk_Resta,tk_Multiplicacion,tk_Division, tk_mod;
+terminal tk_Suma,tk_Resta,tk_Multiplicacion,tk_Division, tk_Signomod, tk_Potencia;
 
 /* Operadores logicos */
 terminal tk_and, tk_or, tk_not, tk_xor;
@@ -51,7 +51,7 @@ terminal tk_ParentesisA, tk_ParentesisC;
 terminal tk_Coma, tk_ampersant, tk_punto;
 
 /* palabras reservadas */
-terminal tk_dim, tk_as, tk_exit, tk_return, tk_write, tk_read, tk_end, tk_main, tk_Linea;
+terminal tk_dim, tk_as, tk_exit, tk_return, tk_write, tk_readline, tk_end, tk_main, tk_Linea , tk_mod;
 
 
 /* Valores */
@@ -63,26 +63,32 @@ non terminal INICIO, OPCPROCESO , PARAMETROS,VARIABLE ,ASIGNACIONVAL, VARBOOL, C
              TIPOD, OPCBOOL, CUERPOFUNC, CUERPOPRO, CUERPOMAIN, CUERPOSTRUC, CICLOS,SINTAXIF,INIF,INELSE,INELSEIF,SINTAXELSEIF,
              CONDICION, SINTAXFOR,OPCRELACIONALES, AUMDEC, SINTAXWHILE, SENTENCIAPRIMA, iDNUM, VALOR, VARIABLEPRIMA,ASIGNACION, VARASIG,VARIABLESTRUC,
              SENTENCIACICLOS , LLAMADAFUNC, IDENTIFICADORES, IDENTIFICADORESPRIMA, SENTENCIAWHILE, SENTENCIAFOR, OPERACIONES, 
-             OPEARITMETICA, IDENTIFICADORESUB, SUBAUX,IFINIF,VARINIF, INFOR, INWHILE,
+             OPEARITMETICA, IDENTIFICADORESUB, SUBAUX,IFINIF,VARINIF, INFOR, INWHILE, OPERACIONAUX,OPERINPAREM, OPERINPAREM_AUX,
              SINTAXIF_WHILE, INIF_WHILE, INELSE_WHILE, INELSEIF_WHILE, SINTAXELSEIF_WHILE,INFOR_WHILE, SINTAXFOR_WHILE,
              SINTAXWHILE_FOR,INWHILE_FOR, SINTAXIF_FOR, SINTAXELSEIF_FOR, INIF_FOR, INELSEIF_FOR, INELSE_FOR,
              SINTAXWHILE_FUNC, INWHILE_FUNC, SINTAXIF_FUNC, SINTAXELSEIF_FUNC, INIF_FUNC, INELSEIF_FUNC, INELSE_FUNC,INFOR_FUNC, SINTAXFOR_FUNC;
 
+precedence left tk_Igual;
+precedence left tk_menorque, tk_mayorque , tk_mayorigual , tk_menorque;
 precedence left tk_Suma,tk_Resta;
-precedence right tk_Multiplicacion,tk_Division;
-precedence right tk_mod;
-precedence right tk_ParentesisA, tk_ParentesisC;
+precedence left tk_mod;
+precedence left tk_Multiplicacion,tk_Division;
+precedence right tk_Potencia;
+precedence left tk_ParentesisA, tk_ParentesisC;
 
-start with OPCPROCESO;
+start with INICIO;
 
 INICIO ::= tk_public tk_module tk_Identificador tk_Linea OPCPROCESO;
 
-OPCPROCESO ::= tk_public tk_sub tk_Identificador tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO OPCPROCESO|
+OPCPROCESO ::= tk_public tk_sub tk_Identificador tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO tk_end tk_sub tk_Linea OPCPROCESO|
                 tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC tk_end tk_function tk_Linea OPCPROCESO|
-                tk_public tk_sub tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO|
-                tk_public tk_structure tk_Identificador tk_Linea CUERPOSTRUC tk_end tk_structure tk_Linea OPCPROCESO;
+                tk_public tk_sub tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO tk_end tk_sub tk_Linea|
+                tk_public tk_structure tk_Identificador tk_Linea CUERPOSTRUC tk_end tk_structure tk_Linea OPCPROCESO|
+                tk_comentario tk_Linea OPCPROCESO;
 
-CUERPOSTRUC ::= tk_Identificador tk_as VARIABLESTRUC;
+CUERPOSTRUC ::= tk_Identificador tk_as VARIABLESTRUC
+            | tk_comentario tk_Linea CUERPOSTRUC
+            | tk_comentario tk_Linea;
 
 VARIABLESTRUC ::= TIPOD tk_Linea CUERPOSTRUC 
             | TIPOD tk_Linea;
@@ -94,7 +100,9 @@ CUERPOFUNC ::= SINTAXFOR_FUNC CUERPOFUNC
             | LLAMADAFUNC CUERPOFUNC
             | ASIGNACIONVAL CUERPOFUNC
             | CONSOLEWRITE CUERPOFUNC
-            | OPERACIONES CUERPOFUNC   
+            | OPERACIONES CUERPOFUNC
+            | tk_comentario tk_Linea CUERPOFUNC
+            | tk_comentario tk_Linea
             | SINTAXFOR_FUNC
             | SINTAXWHILE_FUNC
             | SINTAXIF_FUNC
@@ -102,8 +110,7 @@ CUERPOFUNC ::= SINTAXFOR_FUNC CUERPOFUNC
             | LLAMADAFUNC
             | ASIGNACIONVAL
             | CONSOLEWRITE
-            | OPERACIONES
-            | tk_exit tk_function tk_Linea;
+            | OPERACIONES ;
 
 SINTAXIF_FUNC ::= tk_if CONDICION tk_then tk_Linea INIF_FUNC tk_end tk_if tk_Linea;
 
@@ -117,6 +124,8 @@ INIF_FUNC ::= SINTAXIF_FUNC INIF_FUNC
          | CONSOLEWRITE INIF_FUNC
          | SINTAXFOR_FUNC INIF_FUNC 
          | SINTAXWHILE_FUNC INIF_FUNC
+         | tk_comentario tk_Linea INIF_FUNC
+         | tk_comentario tk_Linea 
          | SINTAXIF_FUNC
          | VARIABLE
          | LLAMADAFUNC
@@ -137,6 +146,8 @@ INELSE_FUNC ::= SINTAXIF_FUNC INELSE_FUNC
            | CONSOLEWRITE INELSE_FUNC 
            | SINTAXFOR_FUNC  INELSE_FUNC 
            | SINTAXWHILE_FUNC  INELSE_FUNC 
+           | tk_comentario tk_Linea INELSE_FUNC
+           | tk_comentario tk_Linea
            | SINTAXIF_FUNC 
            | VARIABLE
            | LLAMADAFUNC
@@ -157,15 +168,17 @@ INELSEIF_FUNC  ::=  SINTAXIF_FUNC INELSEIF_FUNC
                | CONSOLEWRITE INELSEIF_FUNC 
                | SINTAXFOR_FUNC INELSEIF_FUNC
                | SINTAXWHILE_FUNC INELSEIF_FUNC
+               | tk_comentario tk_Linea INELSEIF_FUNC
+               | tk_comentario tk_Linea
                | SINTAXIF_FUNC
-                | VARIABLE
-                | LLAMADAFUNC
-                | ASIGNACIONVAL
-                | CONSOLEWRITE
-                | OPERACIONES
-                | SINTAXFOR_FUNC
-                | SINTAXWHILE_FUNC
-                | tk_exit tk_function tk_Linea;
+               | VARIABLE
+               | LLAMADAFUNC
+               | ASIGNACIONVAL
+               | CONSOLEWRITE
+               | OPERACIONES
+               | SINTAXFOR_FUNC
+               | SINTAXWHILE_FUNC
+               | tk_exit tk_function tk_Linea;
 
 SINTAXWHILE_FUNC ::= tk_do tk_while CONDICION tk_Linea INWHILE_FUNC tk_loop tk_Linea ;
 
@@ -177,6 +190,8 @@ INWHILE_FUNC ::= SINTAXFOR_FUNC INWHILE_FUNC
         | CONSOLEWRITE INWHILE_FUNC
         | OPERACIONES INWHILE_FUNC
         | SINTAXWHILE_FUNC INWHILE_FUNC
+        | tk_comentario tk_Linea INWHILE_FUNC
+        | tk_comentario tk_Linea
         | SINTAXFOR_FUNC
         | SINTAXIF_FUNC
         | VARIABLE
@@ -200,6 +215,8 @@ INFOR_FUNC ::= SINTAXWHILE_FUNC INFOR_FUNC
         | ASIGNACIONVAL INFOR_FUNC 
         | CONSOLEWRITE INFOR_FUNC 
         | OPERACIONES INFOR_FUNC
+        | tk_comentario tk_Linea INFOR_FUNC
+        | tk_comentario tk_Linea
         | SINTAXWHILE_FUNC
         | SINTAXFOR_FUNC
         | SINTAXIF_FUNC
@@ -224,15 +241,16 @@ CUERPOPRO ::= SINTAXFOR CUERPOPRO
         | CONSOLEWRITE CUERPOPRO
         | OPERACIONES CUERPOPRO   
         | SINTAXWHILE CUERPOPRO
+        | tk_comentario tk_Linea CUERPOPRO
+        | tk_comentario tk_Linea
         | SINTAXFOR
         | SINTAXIF
         | VARIABLE
         | LLAMADAFUNC
         | ASIGNACIONVAL
         | CONSOLEWRITE
-        | OPERACIONES
-        | SINTAXWHILE
-        | tk_end tk_sub tk_Linea;
+        | OPERACIONES 
+        | SINTAXWHILE;
 
 PARAMETROS ::= tk_byval tk_Identificador tk_as TIPOD PARAMETROS 
             | tk_Identificador tk_as TIPOD  PARAMETROS
@@ -246,10 +264,13 @@ VARIABLE ::= tk_dim tk_Identificador tk_as TIPOD tk_Linea |
             tk_dim tk_Identificador tk_as TIPOD tk_Igual VALOR tk_Linea|
             tk_dim tk_Identificador tk_as TIPOD tk_Igual LLAMADAFUNC tk_Linea|
             tk_dim tk_Identificador tk_Igual VALOR tk_Linea |
+            tk_dim tk_Identificador tk_Igual OPERACIONES |
             tk_Identificador tk_punto tk_Identificador tk_Igual VALOR tk_Linea; 
             
 ASIGNACIONVAL ::= tk_Identificador tk_Igual VALOR tk_Linea
-                  | tk_Identificador tk_Igual iDNUM OPEARITMETICA iDNUM tk_Linea;
+                  | tk_Identificador tk_Igual OPERACIONES 
+                  | tk_Identificador tk_Igual tk_cs tk_punto tk_readline tk_ParentesisA tk_ParentesisC tk_Linea;
+
 
 OPCBOOL ::= tk_true | tk_false;
 
@@ -274,9 +295,18 @@ CONDICION ::= iDNUM OPCRELACIONALES iDNUM
 AUMDEC ::= tk_Resta tk_Numero 
         | tk_Numero ;
 
-OPERACIONES ::= iDNUM OPEARITMETICA iDNUM tk_Linea;
+OPERACIONES ::= iDNUM OPEARITMETICA OPERACIONAUX
+                | tk_ParentesisA iDNUM OPEARITMETICA OPERACIONAUX ; 
 
-OPEARITMETICA ::= tk_Suma | tk_Resta | tk_Multiplicacion | tk_Division; 
+OPERACIONAUX ::=  iDNUM OPEARITMETICA OPERACIONAUX
+                | tk_ParentesisA iDNUM OPEARITMETICA OPERACIONAUX
+                | OPEARITMETICA iDNUM OPERACIONAUX
+                | iDNUM tk_ParentesisC OPERACIONAUX
+                | OPEARITMETICA iDNUM tk_Linea
+                | iDNUM tk_ParentesisC tk_Linea
+                | iDNUM tk_Linea;
+
+OPEARITMETICA ::= tk_Suma | tk_Resta | tk_Multiplicacion | tk_Division | tk_Signomod | tk_Potencia ; 
 
 IDENTIFICADORES ::= iDNUM IDENTIFICADORESPRIMA ;
 
@@ -310,6 +340,8 @@ INIF ::= SINTAXIF INIF
          | CONSOLEWRITE INIF
          | SINTAXFOR INIF 
          | SINTAXWHILE INIF
+         | tk_comentario tk_Linea INIF
+         | tk_comentario tk_Linea
          | SINTAXIF
          | VARIABLE
          | LLAMADAFUNC
@@ -329,6 +361,8 @@ INELSE ::= SINTAXIF INELSE
            | CONSOLEWRITE INELSE
            | SINTAXFOR INELSE
            | SINTAXWHILE INELSE
+           | tk_comentario tk_Linea INELSE
+           | tk_comentario tk_Linea
            | SINTAXIF
            | VARIABLE
            | LLAMADAFUNC
@@ -348,14 +382,16 @@ INELSEIF ::=  SINTAXIF INELSEIF
                | CONSOLEWRITE INELSEIF 
                | SINTAXFOR INELSEIF
                | SINTAXWHILE INELSEIF
+               | tk_comentario tk_Linea INELSEIF
+               | tk_comentario tk_Linea
                | SINTAXIF
-                | VARIABLE
-                | LLAMADAFUNC
-                | ASIGNACIONVAL
-                | CONSOLEWRITE
-                | OPERACIONES
-                | SINTAXFOR
-                | SINTAXWHILE;
+               | VARIABLE
+               | LLAMADAFUNC
+               | ASIGNACIONVAL
+               | CONSOLEWRITE
+               | OPERACIONES
+               | SINTAXFOR
+               | SINTAXWHILE;
 
 /*
     FOR
@@ -372,6 +408,8 @@ INFOR ::=  SINTAXFOR INFOR
         | CONSOLEWRITE INFOR
         | OPERACIONES INFOR   
         | SINTAXWHILE_FOR INFOR
+        | tk_comentario tk_Linea INFOR
+        | tk_comentario tk_Linea
         | SINTAXFOR
         | SINTAXIF_FOR
         | VARIABLE
@@ -394,6 +432,8 @@ INIF_FOR ::= SINTAXIF_FOR INIF_FOR
          | CONSOLEWRITE INIF_FOR
          | SINTAXFOR INIF_FOR
          | SINTAXWHILE_FOR INIF_FOR
+         | tk_comentario tk_Linea INIF_FOR
+         | tk_comentario tk_Linea
          | SINTAXIF_FOR
          | VARIABLE
          | LLAMADAFUNC
@@ -416,15 +456,17 @@ INELSEIF_FOR ::=  SINTAXIF_FOR INELSEIF_FOR
                | CONSOLEWRITE INELSEIF_FOR 
                | SINTAXFOR INELSEIF_FOR
                | SINTAXWHILE_FOR INELSEIF_FOR
+               | tk_comentario tk_Linea INELSEIF_FOR
+               | tk_comentario tk_Linea
                | SINTAXIF_FOR
-                | VARIABLE
-                | LLAMADAFUNC
-                | ASIGNACIONVAL
-                | CONSOLEWRITE
-                | OPERACIONES
-                | SINTAXFOR
-                | SINTAXWHILE_FOR
-                | tk_exit tk_for tk_Linea;
+               | VARIABLE
+               | LLAMADAFUNC
+               | ASIGNACIONVAL
+               | CONSOLEWRITE
+               | OPERACIONES
+               | SINTAXFOR
+               | SINTAXWHILE_FOR
+               | tk_exit tk_for tk_Linea;
 
 INELSE_FOR ::= SINTAXIF_FOR INELSE_FOR
            | VARIABLE INELSE_FOR
@@ -434,6 +476,8 @@ INELSE_FOR ::= SINTAXIF_FOR INELSE_FOR
            | CONSOLEWRITE INELSE_FOR
            | SINTAXFOR INELSE_FOR
            | SINTAXWHILE_FOR INELSE_FOR
+           | tk_comentario tk_Linea INELSE_FOR
+           | tk_comentario tk_Linea
            | SINTAXIF_FOR
            | VARIABLE
            | LLAMADAFUNC
@@ -454,6 +498,8 @@ INWHILE_FOR ::= SINTAXFOR INWHILE_FOR
         | OPERACIONES INWHILE_FOR
         | SINTAXWHILE_FOR INWHILE_FOR
         | SINTAXIF_FOR INWHILE_FOR
+        | tk_comentario tk_Linea INWHILE_FOR
+        | tk_comentario tk_Linea
         | SINTAXFOR
         | VARIABLE
         | LLAMADAFUNC
@@ -481,6 +527,8 @@ INIF_WHILE ::= SINTAXIF_WHILE INIF_WHILE
          | CONSOLEWRITE INIF_WHILE
          | SINTAXFOR_WHILE INIF_WHILE
          | SINTAXWHILE INIF_WHILE
+         | tk_comentario tk_Linea INIF_WHILE
+         | tk_comentario tk_Linea
          | SINTAXIF_WHILE
          | VARIABLE
          | LLAMADAFUNC
@@ -503,15 +551,17 @@ INELSEIF_WHILE ::= SINTAXWHILE INELSEIF_WHILE
                | OPERACIONES INELSEIF_WHILE 
                | CONSOLEWRITE INELSEIF_WHILE 
                | SINTAXFOR_WHILE INELSEIF_WHILE
+               | tk_comentario tk_Linea INELSEIF_WHILE
+               | tk_comentario tk_Linea
                | SINTAXWHILE
                | SINTAXIF_WHILE
-                | VARIABLE
-                | LLAMADAFUNC
-                | ASIGNACIONVAL
-                | CONSOLEWRITE
-                | OPERACIONES
-                | SINTAXFOR_WHILE
-                | tk_exit tk_do tk_Linea;
+               | VARIABLE
+               | LLAMADAFUNC
+               | ASIGNACIONVAL
+               | CONSOLEWRITE
+               | OPERACIONES
+               | SINTAXFOR_WHILE
+               | tk_exit tk_do tk_Linea;
 
 INELSE_WHILE ::= SINTAXWHILE INELSE_WHILE
            | SINTAXIF_WHILE INELSE_WHILE
@@ -521,6 +571,8 @@ INELSE_WHILE ::= SINTAXWHILE INELSE_WHILE
            | OPERACIONES INELSE_WHILE
            | CONSOLEWRITE INELSE_WHILE
            | SINTAXFOR_WHILE INELSE_WHILE
+           | tk_comentario tk_Linea INELSE_WHILE
+           | tk_comentario tk_Linea
            | SINTAXWHILE
            | SINTAXIF_WHILE
            | VARIABLE
@@ -542,6 +594,8 @@ INFOR_WHILE ::= SINTAXWHILE INFOR_WHILE
         | ASIGNACIONVAL INFOR_WHILE 
         | CONSOLEWRITE INFOR_WHILE 
         | OPERACIONES INFOR_WHILE 
+        | tk_comentario tk_Linea INFOR_WHILE
+        | tk_comentario tk_Linea
         | SINTAXWHILE
         | SINTAXFOR_WHILE
         | SINTAXIF_WHILE
@@ -563,6 +617,8 @@ INWHILE ::= SINTAXWHILE INWHILE
         | ASIGNACIONVAL INWHILE
         | CONSOLEWRITE INWHILE
         | OPERACIONES INWHILE
+        | tk_comentario tk_Linea INWHILE
+        | tk_comentario tk_Linea
         | SINTAXWHILE
         | SINTAXFOR_WHILE
         | SINTAXIF_WHILE

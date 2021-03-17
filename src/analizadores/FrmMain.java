@@ -316,8 +316,8 @@ public class FrmMain extends javax.swing.JFrame {
                     case tk_write:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Write>\t\t" + tokens + "\n";
                         break;  
-                    case tk_read:
-                        resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Read>\t\t" + tokens + "\n";
+                    case tk_readline:
+                        resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Readline>\t\t" + tokens + "\n";
                         break;
                     case tk_and:
                         resultado += lexer.lexeme +":\t  <Es una Palabra Reservada And>\t\t" + tokens + "\n";
@@ -352,11 +352,8 @@ public class FrmMain extends javax.swing.JFrame {
                     case tk_like:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Like>\t\t" + tokens + "\n";
                         break;    
-                    case tk_mod:
-                        resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Mod>\t\t" + tokens + "\n";
-                        break;
-                    case tk_null:
-                        resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Null>\t\t" + tokens + "\n";
+                    case tk_null: case tk_mod:
+                        resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada >\t\t" + tokens + "\n";
                         break;
                     case tk_punto:
                         resultado += lexer.lexeme + ":\t  <Signo reservado>\t\t" + tokens + "\n";
@@ -364,7 +361,7 @@ public class FrmMain extends javax.swing.JFrame {
                     case tk_ampersant:
                         resultado += lexer.lexeme + ":\t  <Signo reservado>\t\t" + tokens + "\n";
                         break; 
-                    case tk_Suma: case tk_Resta: case tk_Multiplicacion: case tk_Division:
+                    case tk_Suma: case tk_Resta: case tk_Multiplicacion: case tk_Division: case tk_Signomod: case tk_Potencia:
                         resultado += lexer.lexeme + ":\t  <Es una Operador aritmetico>\t\t" + tokens + "\n";
                         break;
                     case tk_Coma: case tk_Igual:
