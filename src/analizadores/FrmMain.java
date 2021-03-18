@@ -24,7 +24,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
- * @author Sammy Guergachi <sguergachi at gmail.com>
+ *
  */
 public class FrmMain extends javax.swing.JFrame {
 
@@ -430,7 +430,7 @@ public class FrmMain extends javax.swing.JFrame {
         try {
             s.parse();
             txtSintactico.setText("Analisis realizado correctamente");
-            txtSintactico.setForeground(new Color(25, 111, 61));
+            txtSintactico.setForeground(Color.GREEN);
         } catch (Exception ex) {
             Symbol sym = s.getS();
             txtSintactico.setText("Error de sintaxis. Linea: " + (sym.right + 1) + " Columna: " + (sym.left + 1) + ", Texto: \"" + sym.value + "\"");
