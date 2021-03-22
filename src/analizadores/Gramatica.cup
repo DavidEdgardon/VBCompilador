@@ -1,23 +1,39 @@
 package analizadores;
 
 import java_cup.runtime.Symbol;
+import java.util.ArrayList; 
 
 parser code
 {:
     private Symbol sym;
-    
+    private Symbol cur_token;
+    String unrecovered = "";
+    String errorSintax = "";
+    ArrayList<String> listaRecover = new ArrayList<String>();
+
+    @Override
     public void syntax_error(Symbol sym){
-        this.sym = sym;
+       listaRecover.add("\n Error Sintactico en la Linea " + (sym.right+1) +" Columna "+ (sym.left) + ". Palabras/Simbolo " + (sym.value) + " no reconocido \n") ;
     }
 
-    public Symbol getS(){
-        return this.sym;
+    public ArrayList<String> getSintax(){
+        return listaRecover;
+    }
+
+   /* @Override
+    public void unrecovered_syntax_error(Symbol cur_token){
+       unrecovered = "Error Sintactico en la Linea " + (cur_token.right+1)+ "Columna "+cur_token.left+". Palabras/Simbolo " + cur_token.value + " no reconocido"; 
+    }
+
+    public String getS(){
+        return unrecovered;
 }
+*/
+
 :};
 
 /* Terminales */
-
-terminal tk_writeline, tk_like, tk_sys, tk_cs, tk_null, ERROR, tk_comentario;
+terminal tk_writeline,tk_cs, tk_comentario;
 
 /* Tipos de Datos */
 terminal tk_integer, tk_boolean, tk_String;
@@ -27,7 +43,7 @@ terminal tk_byval;
 
 /* Estructuras de Control */
 terminal tk_if, tk_then, tk_elseif, tk_else, tk_for, tk_to, tk_loop, tk_while, tk_step;
-terminal tk_until, tk_next, tk_do;
+terminal tk_next, tk_do;
 
 /* Expresiones Booleanas */
 terminal tk_true, tk_false;
@@ -38,9 +54,6 @@ terminal tk_function, tk_sub, tk_structure, tk_public, tk_module;
 /* Operadores Aritmeticos */
 terminal tk_Suma,tk_Resta,tk_Multiplicacion,tk_Division, tk_Signomod, tk_Potencia;
 
-/* Operadores logicos */
-terminal tk_and, tk_or, tk_not, tk_xor;
-
 /*Operadores Relacionales */
 terminal tk_mayorque,tk_mayorigual,tk_menorque,tk_menorigual,tk_Igual;
 
@@ -48,10 +61,10 @@ terminal tk_mayorque,tk_mayorigual,tk_menorque,tk_menorigual,tk_Igual;
 terminal tk_ParentesisA, tk_ParentesisC;
 
 /* Simbolos */
-terminal tk_Coma, tk_ampersant, tk_punto;
+terminal tk_Coma, tk_punto;
 
 /* palabras reservadas */
-terminal tk_dim, tk_as, tk_exit, tk_return, tk_write, tk_readline, tk_end, tk_main, tk_Linea , tk_mod;
+terminal tk_dim, tk_as, tk_exit, tk_readline, tk_end, tk_main, tk_Linea;
 
 
 /* Valores */
@@ -59,39 +72,61 @@ terminal String tk_valorString;
 terminal String tk_Identificador;
 terminal Integer tk_Numero;
 
-non terminal INICIO, OPCPROCESO , PARAMETROS,VARIABLE ,ASIGNACIONVAL, VARBOOL, CONSOLEWRITE,
-             TIPOD, OPCBOOL, CUERPOFUNC, CUERPOPRO, CUERPOMAIN, CUERPOSTRUC, CICLOS,SINTAXIF,INIF,INELSE,INELSEIF,SINTAXELSEIF,
-             CONDICION, SINTAXFOR,OPCRELACIONALES, AUMDEC, SINTAXWHILE, SENTENCIAPRIMA, iDNUM, VALOR, VARIABLEPRIMA,ASIGNACION, VARASIG,VARIABLESTRUC,
-             SENTENCIACICLOS , LLAMADAFUNC, IDENTIFICADORES, IDENTIFICADORESPRIMA, SENTENCIAWHILE, SENTENCIAFOR, OPERACIONES, 
-             OPEARITMETICA, IDENTIFICADORESUB, SUBAUX,IFINIF,VARINIF, INFOR, INWHILE, OPERACIONAUX,OPERINPAREM, OPERINPAREM_AUX,
-             SINTAXIF_WHILE, INIF_WHILE, INELSE_WHILE, INELSEIF_WHILE, SINTAXELSEIF_WHILE,INFOR_WHILE, SINTAXFOR_WHILE,
-             SINTAXWHILE_FOR,INWHILE_FOR, SINTAXIF_FOR, SINTAXELSEIF_FOR, INIF_FOR, INELSEIF_FOR, INELSE_FOR,
-             SINTAXWHILE_FUNC, INWHILE_FUNC, SINTAXIF_FUNC, SINTAXELSEIF_FUNC, INIF_FUNC, INELSEIF_FUNC, INELSE_FUNC,INFOR_FUNC, SINTAXFOR_FUNC;
+non terminal INICIO, OPCPROCESO , PARAMETROS,VARIABLE ,ASIGNACIONVAL, CONSOLEWRITE, TIPOD, OPCBOOL, CUERPOFUNC, CUERPOPRO,
+             CUERPOSTRUC,SINTAXIF,INIF,INELSE,INELSEIF,SINTAXELSEIF, CONDICION, SINTAXFOR,OPCRELACIONALES, AUMDEC, SINTAXWHILE,
+             iDNUM, VALOR,VARIABLESTRUC,LLAMADAFUNC, IDENTIFICADORES, IDENTIFICADORESPRIMA, OPERACIONES, OPEARITMETICA, 
+             IDENTIFICADORESUB, INFOR, INWHILE, OPERACIONAUX,MAIN,ENDMODULE,ENDSUB,ENDSTRUCT,ENDFUNC,OPCPROCESOAUX,MODULE,
+             SINTAXIF_WHILE, INIF_WHILE, INELSE_WHILE, INELSEIF_WHILE, SINTAXELSEIF_WHILE,INFOR_WHILE, SINTAXFOR_WHILE,COMENTARIO,
+             SINTAXWHILE_FOR,INWHILE_FOR, SINTAXIF_FOR, SINTAXELSEIF_FOR, INIF_FOR, INELSEIF_FOR, INELSE_FOR,FUNC,STRUCT,SUBPROCESS,
+             SINTAXWHILE_FUNC, INWHILE_FUNC, SINTAXIF_FUNC, SINTAXELSEIF_FUNC, INIF_FUNC, INELSEIF_FUNC, INELSE_FUNC,INFOR_FUNC,
+             SINTAXFOR_FUNC;
 
 precedence left tk_Igual;
 precedence left tk_menorque, tk_mayorque , tk_mayorigual , tk_menorque;
 precedence left tk_Suma,tk_Resta;
-precedence left tk_mod;
+precedence left tk_Signomod;
 precedence left tk_Multiplicacion,tk_Division;
 precedence right tk_Potencia;
 
 start with INICIO;
+       
+INICIO ::= MODULE | error MODULE;
 
-INICIO ::= tk_public tk_module tk_Identificador tk_Linea OPCPROCESO tk_end tk_module tk_Linea
-            | tk_comentario tk_Linea INICIO;
+MODULE ::= tk_public tk_module tk_Identificador tk_Linea OPCPROCESO 
+            | COMENTARIO OPCPROCESO
+            | error OPCPROCESO;
 
-OPCPROCESO ::= tk_public tk_sub tk_Identificador tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO tk_end tk_sub tk_Linea OPCPROCESO|
-                tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC tk_end tk_function tk_Linea OPCPROCESO|
-                tk_public tk_sub tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO tk_end tk_sub tk_Linea|
-                tk_public tk_structure tk_Identificador tk_Linea CUERPOSTRUC tk_end tk_structure tk_Linea OPCPROCESO|
-                tk_comentario tk_Linea OPCPROCESO;
+COMENTARIO ::= tk_comentario tk_Linea;
 
-CUERPOSTRUC ::= tk_Identificador tk_as VARIABLESTRUC
-            | tk_comentario tk_Linea CUERPOSTRUC
-            | tk_comentario tk_Linea;
+FUNC ::= tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC;
+STRUCT ::= tk_public tk_structure tk_Identificador tk_Linea CUERPOSTRUC;
+SUBPROCESS ::= tk_public tk_sub tk_Identificador tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO;
+MAIN ::=  tk_public tk_sub tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO;
 
-VARIABLESTRUC ::= TIPOD tk_Linea CUERPOSTRUC 
-            | TIPOD tk_Linea;
+ENDMODULE ::= tk_end tk_module tk_Linea;
+ENDFUNC ::= tk_end tk_function tk_Linea;
+ENDSTRUCT ::= tk_end tk_structure tk_Linea;
+ENDSUB ::= tk_end tk_sub tk_Linea;
+
+OPCPROCESO ::= FUNC OPCPROCESO 
+            | STRUCT OPCPROCESO
+            | SUBPROCESS OPCPROCESO
+            | MAIN;
+
+OPCPROCESOAUX ::= FUNC OPCPROCESO 
+            | STRUCT OPCPROCESO
+            | SUBPROCESS OPCPROCESO
+            | ENDMODULE;
+
+CUERPOSTRUC ::= VARIABLESTRUC CUERPOSTRUC
+            | COMENTARIO CUERPOSTRUC
+            | SUBPROCESS CUERPOSTRUC
+            | ENDSTRUCT;
+
+VARIABLESTRUC ::= tk_Identificador tk_as TIPOD tk_Linea
+            | tk_Identificador tk_as tk_boolean tk_Igual OPCBOOL tk_Linea
+            | tk_Identificador tk_as tk_String tk_Igual tk_valorString tk_Linea
+            | tk_Identificador tk_as tk_integer tk_Igual tk_Numero tk_Linea;
 
 CUERPOFUNC ::= SINTAXFOR_FUNC CUERPOFUNC
             | SINTAXWHILE_FUNC CUERPOFUNC
@@ -101,16 +136,8 @@ CUERPOFUNC ::= SINTAXFOR_FUNC CUERPOFUNC
             | ASIGNACIONVAL CUERPOFUNC
             | CONSOLEWRITE CUERPOFUNC
             | OPERACIONES CUERPOFUNC
-            | tk_comentario tk_Linea CUERPOFUNC
-            | tk_comentario tk_Linea
-            | SINTAXFOR_FUNC
-            | SINTAXWHILE_FUNC
-            | SINTAXIF_FUNC
-            | VARIABLE
-            | LLAMADAFUNC
-            | ASIGNACIONVAL
-            | CONSOLEWRITE
-            | OPERACIONES ;
+            | COMENTARIO CUERPOFUNC
+            | ENDFUNC;
 
 SINTAXIF_FUNC ::= tk_if CONDICION tk_then tk_Linea INIF_FUNC tk_end tk_if tk_Linea;
 
@@ -230,7 +257,7 @@ INFOR_FUNC ::= SINTAXWHILE_FUNC INFOR_FUNC
         | tk_exit tk_for tk_Linea;
 
 /* 
-TERMINA CUERPO FUNCIOON
+TERMINA CUERPO FUNCION
 */
 
 CUERPOPRO ::= SINTAXFOR CUERPOPRO
@@ -241,16 +268,8 @@ CUERPOPRO ::= SINTAXFOR CUERPOPRO
         | CONSOLEWRITE CUERPOPRO
         | OPERACIONES CUERPOPRO   
         | SINTAXWHILE CUERPOPRO
-        | tk_comentario tk_Linea CUERPOPRO
-        | tk_comentario tk_Linea
-        | SINTAXFOR
-        | SINTAXIF
-        | VARIABLE
-        | LLAMADAFUNC
-        | ASIGNACIONVAL
-        | CONSOLEWRITE
-        | OPERACIONES 
-        | SINTAXWHILE;
+        | COMENTARIO CUERPOPRO
+        | ENDSUB OPCPROCESOAUX;   
 
 PARAMETROS ::= tk_byval tk_Identificador tk_as TIPOD PARAMETROS 
             | tk_Identificador tk_as TIPOD  PARAMETROS
@@ -271,14 +290,13 @@ ASIGNACIONVAL ::= tk_Identificador tk_Igual VALOR tk_Linea
                   | tk_Identificador tk_Igual OPERACIONES 
                   | tk_Identificador tk_Igual LLAMADAFUNC  
                   | tk_Identificador tk_Igual tk_cs tk_punto tk_readline tk_ParentesisA tk_ParentesisC tk_Linea
-                  | tk_cs tk_punto tk_readline tk_ParentesisA tk_ParentesisC tk_Linea;
+                  | tk_cs tk_punto tk_readline tk_ParentesisA tk_ParentesisC tk_Linea
+                  | tk_Identificador tk_punto tk_Identificador tk_Igual tk_cs tk_punto tk_readline tk_ParentesisA tk_ParentesisC tk_Linea;
 
 
 OPCBOOL ::= tk_true | tk_false;
 
 TIPOD ::= tk_String | tk_integer | tk_boolean;
-
-CICLOS ::=  SINTAXWHILE | SINTAXFOR;
 
 OPCRELACIONALES ::= tk_mayorque |
                     tk_mayorigual | 
@@ -325,7 +343,8 @@ LLAMADAFUNC ::= tk_Identificador tk_ParentesisA IDENTIFICADORES tk_Linea
             | tk_Identificador tk_ParentesisA tk_ParentesisA IDENTIFICADORES tk_ParentesisC tk_Linea
             | tk_Identificador tk_ParentesisA IDENTIFICADORES IDENTIFICADORESUB tk_Linea;
 
-CONSOLEWRITE ::= tk_cs tk_punto tk_writeline tk_ParentesisA tk_valorString tk_ParentesisC tk_Linea;
+CONSOLEWRITE ::= tk_cs tk_punto tk_writeline tk_ParentesisA tk_valorString tk_ParentesisC tk_Linea
+                | tk_cs tk_punto tk_writeline tk_ParentesisA tk_Identificador tk_ParentesisC tk_Linea;
 
 /*
     IF ELSEIF ELSE

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="2">
         <file>
             <url>src/analizadores/Main.java</url>
             <bookmark id="1">
@@ -14,7 +14,9 @@
         <group>
             <file>file:/C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Main.java</file>
             <file>file:/C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/FrmMain.java</file>
+            <file>file:/C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/lexercup.flex</file>
             <file>file:/C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Gramatica.cup</file>
+            <file>file:/C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Gramatica.java</file>
         </group>
     </open-files>
 </project-private>

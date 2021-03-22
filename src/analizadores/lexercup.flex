@@ -7,6 +7,7 @@ import java_cup.runtime.Symbol;
 %cup
 %full
 %line
+%unicode
 %char
 Digitos=[0-9]
 espacio=[ \t]+
@@ -28,8 +29,7 @@ Dim = [D|d][I|i][M|m]
 End = [E|e][N|n][D|d]
 Integer = [I|i][N|n][T|t][E|e][G|g][E|e][R|r]
 Boolean = [B|b][O|o][O|o][L|l][E|e][A|a][N|n]
-String = [S|s][T|t][R|r][I|i][N|n][G|g]|
-System = [S|s][Y|y][S|s][T|t][E|e][M|m]
+String = [S|s][T|t][R|r][I|i][N|n][G|g]
 Console = [C|c][O|o][N|n][S|s][O|o][L|l][E|e]
 WriteLine = [W|w][R|r][I|i][T|t][E|e][L|l][I|i][N|n][E|e]
 As = [A|a][S|s]
@@ -39,22 +39,13 @@ Structure = [S|s][T|t][R|r][U|u][C|c][T|t][U|u][R|r][E|e]
 Then = [T|t][H|h][E|e][N|n]
 Else = [E|e][L|l][S|s][E|e]
 ElseIf = [E|e][L|l][S|s][E|e][I|i][F|f]
-Xor = [X|x][O|o][R|r]
-Not = [N|n][O|o][T|t]
 Function = [F|f][U|u][N|n][C|c][T|t][I|i][O|o][N|n]
-Return = [R|r][E|e][T|t][U|u][R|r][N|n]
 Next = [N|n][E|e][X|x][T|t]
 Loop = [L|l][O|o][O|o][P|p]
 Exit = [E|e][X|x][I|i][T|t]
-Until = [U|u][N|n][T|t][I|i][L|l]
 To = [T|t][O|o]
-And = [A|a][N|n][D|d]
-Or = [O|o][R|r]
 True = [T|t][R|r][U|u][E|e]
 False = [F|f][A|a][L|l][S|s][E|e]
-Like = [L|l][I|i][K|k][E|e]
-Mod = [M|m][O|o][D|d]
-Null = [N|n][U|u][L|l][L|l]
 Step = [S|s][T|t][E|e][P|p]
 Main = [M|m][A|a][I|i][N|n]
 ByVal = [B|b][Y|y][V|v][A|a][L|l]
@@ -106,27 +97,16 @@ ByVal = [B|b][Y|y][V|v][A|a][L|l]
 { ElseIf } {return new Symbol(sym.tk_elseif, yychar, yyline, yytext());}
 { Loop } {return new Symbol(sym.tk_loop, yychar, yyline, yytext());}
 { End } {return new Symbol(sym.tk_end, yychar, yyline, yytext());}
-{ Until } {return new Symbol(sym.tk_until, yychar, yyline, yytext());}
 { Next } {return new Symbol(sym.tk_next, yychar, yyline, yytext());}
 { Function } {return new Symbol(sym.tk_function, yychar, yyline, yytext());}
 { Sub } {return new Symbol(sym.tk_sub, yychar, yyline, yytext());}
 { Exit } {return new Symbol(sym.tk_exit, yychar, yyline, yytext());}
-{ Return } {return new Symbol(sym.tk_return, yychar, yyline, yytext());}
 { Structure } {return new Symbol(sym.tk_structure, yychar, yyline, yytext());}
-{ Write } {return new Symbol(sym.tk_write, yychar, yyline, yytext());}
 { ReadLine } {return new Symbol(sym.tk_readline, yychar, yyline, yytext());}
-{ And } {return new Symbol(sym.tk_and, yychar, yyline, yytext());}
-{ Or } {return new Symbol(sym.tk_or, yychar, yyline, yytext());}
-{ Not } {return new Symbol(sym.tk_not, yychar, yyline, yytext());}
-{ Xor } {return new Symbol(sym.tk_xor, yychar, yyline, yytext());}
 { Public } {return new Symbol(sym.tk_public, yychar, yyline, yytext());}
-{ System } {return new Symbol(sym.tk_sys, yychar, yyline, yytext());}
 { Console } {return new Symbol(sym.tk_cs, yychar, yyline, yytext());}
 { WriteLine } {return new Symbol(sym.tk_writeline, yychar, yyline, yytext());}
 { Module } {return new Symbol(sym.tk_module, yychar, yyline, yytext());}
-{ Like } {return new Symbol(sym.tk_like, yychar, yyline, yytext());}
-{ Mod } {return new Symbol(sym.tk_mod, yychar, yyline, yytext());}
-{ Null } {return new Symbol(sym.tk_null, yychar, yyline, yytext());}
 { Step } {return new Symbol(sym.tk_step, yychar, yyline, yytext());}
 
 /* Operadores Aritmeticos*/
@@ -140,7 +120,6 @@ ByVal = [B|b][Y|y][V|v][A|a][L|l]
 
 /*Signos reservados*/
 ( "," ) {return new Symbol(sym.tk_Coma, yychar, yyline, yytext());}
-( "&" ) {return new Symbol(sym.tk_ampersant, yychar, yyline, yytext());}
 ( "." ) {return new Symbol(sym.tk_punto, yychar, yyline, yytext());}
 
 /*Operadores Relacionales */
@@ -161,5 +140,5 @@ ByVal = [B|b][Y|y][V|v][A|a][L|l]
 {Digitos}+ {return new Symbol(sym.tk_Numero, yychar, yyline, yytext());}
 
 /* Error de analisis */
- . {return new Symbol(sym.ERROR, yychar, yyline, yytext());}
+ . {}
 

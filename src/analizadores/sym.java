@@ -8,80 +8,63 @@ package analizadores;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int tk_menorigual = 45;
-  public static final int tk_while = 20;
-  public static final int tk_sub = 28;
-  public static final int tk_module = 31;
-  public static final int tk_boolean = 10;
-  public static final int tk_step = 21;
-  public static final int tk_to = 18;
-  public static final int tk_false = 26;
-  public static final int tk_valorString = 62;
-  public static final int tk_Resta = 33;
-  public static final int tk_mayorigual = 43;
-  public static final int tk_public = 30;
-  public static final int tk_xor = 41;
-  public static final int tk_Multiplicacion = 34;
+  public static final int tk_menorigual = 36;
+  public static final int tk_while = 16;
+  public static final int tk_sub = 23;
+  public static final int tk_module = 26;
+  public static final int tk_boolean = 6;
+  public static final int tk_step = 17;
+  public static final int tk_to = 14;
+  public static final int tk_false = 21;
+  public static final int tk_valorString = 49;
+  public static final int tk_Resta = 28;
+  public static final int tk_mayorigual = 34;
+  public static final int tk_public = 25;
+  public static final int tk_Multiplicacion = 29;
   public static final int tk_writeline = 2;
-  public static final int tk_comentario = 8;
-  public static final int tk_as = 53;
-  public static final int tk_Igual = 46;
-  public static final int tk_for = 17;
-  public static final int tk_function = 27;
-  public static final int tk_do = 24;
-  public static final int tk_not = 40;
-  public static final int tk_and = 38;
-  public static final int tk_structure = 29;
-  public static final int tk_readline = 57;
-  public static final int tk_Suma = 32;
+  public static final int tk_comentario = 4;
+  public static final int tk_as = 43;
+  public static final int tk_Igual = 37;
+  public static final int tk_for = 13;
+  public static final int tk_function = 22;
+  public static final int tk_do = 19;
+  public static final int tk_structure = 24;
+  public static final int tk_readline = 45;
+  public static final int tk_Suma = 27;
   public static final int EOF = 0;
-  public static final int tk_write = 56;
-  public static final int tk_Potencia = 37;
+  public static final int tk_Potencia = 32;
   public static final int error = 1;
-  public static final int tk_sys = 4;
-  public static final int tk_Coma = 49;
-  public static final int tk_dim = 52;
-  public static final int tk_exit = 54;
-  public static final int tk_next = 23;
-  public static final int tk_loop = 19;
-  public static final int tk_main = 59;
-  public static final int ERROR = 7;
-  public static final int tk_cs = 5;
-  public static final int tk_mayorque = 42;
-  public static final int tk_until = 22;
-  public static final int tk_mod = 61;
-  public static final int tk_ParentesisC = 48;
-  public static final int tk_true = 25;
-  public static final int tk_ParentesisA = 47;
-  public static final int tk_like = 3;
-  public static final int tk_null = 6;
-  public static final int tk_or = 39;
-  public static final int tk_elseif = 15;
-  public static final int tk_byval = 12;
-  public static final int tk_Division = 35;
-  public static final int tk_integer = 9;
-  public static final int tk_String = 11;
-  public static final int tk_Signomod = 36;
-  public static final int tk_if = 13;
-  public static final int tk_ampersant = 50;
-  public static final int tk_else = 16;
-  public static final int tk_end = 58;
-  public static final int tk_Numero = 64;
-  public static final int tk_Linea = 60;
-  public static final int tk_return = 55;
-  public static final int tk_then = 14;
-  public static final int tk_punto = 51;
-  public static final int tk_menorque = 44;
-  public static final int tk_Identificador = 63;
+  public static final int tk_Coma = 40;
+  public static final int tk_dim = 42;
+  public static final int tk_exit = 44;
+  public static final int tk_next = 18;
+  public static final int tk_loop = 15;
+  public static final int tk_main = 47;
+  public static final int tk_cs = 3;
+  public static final int tk_mayorque = 33;
+  public static final int tk_ParentesisC = 39;
+  public static final int tk_true = 20;
+  public static final int tk_ParentesisA = 38;
+  public static final int tk_elseif = 11;
+  public static final int tk_byval = 8;
+  public static final int tk_integer = 5;
+  public static final int tk_String = 7;
+  public static final int tk_Division = 30;
+  public static final int tk_if = 9;
+  public static final int tk_Signomod = 31;
+  public static final int tk_else = 12;
+  public static final int tk_end = 46;
+  public static final int tk_Numero = 51;
+  public static final int tk_Linea = 48;
+  public static final int tk_then = 10;
+  public static final int tk_punto = 41;
+  public static final int tk_menorque = 35;
+  public static final int tk_Identificador = 50;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
   "tk_writeline",
-  "tk_like",
-  "tk_sys",
   "tk_cs",
-  "tk_null",
-  "ERROR",
   "tk_comentario",
   "tk_integer",
   "tk_boolean",
@@ -96,7 +79,6 @@ public class sym {
   "tk_loop",
   "tk_while",
   "tk_step",
-  "tk_until",
   "tk_next",
   "tk_do",
   "tk_true",
@@ -112,10 +94,6 @@ public class sym {
   "tk_Division",
   "tk_Signomod",
   "tk_Potencia",
-  "tk_and",
-  "tk_or",
-  "tk_not",
-  "tk_xor",
   "tk_mayorque",
   "tk_mayorigual",
   "tk_menorque",
@@ -124,18 +102,14 @@ public class sym {
   "tk_ParentesisA",
   "tk_ParentesisC",
   "tk_Coma",
-  "tk_ampersant",
   "tk_punto",
   "tk_dim",
   "tk_as",
   "tk_exit",
-  "tk_return",
-  "tk_write",
   "tk_readline",
   "tk_end",
   "tk_main",
   "tk_Linea",
-  "tk_mod",
   "tk_valorString",
   "tk_Identificador",
   "tk_Numero"

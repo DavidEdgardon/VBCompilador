@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
@@ -429,13 +430,23 @@ public class FrmMain extends javax.swing.JFrame {
         
         try {
             s.parse();
-            txtSintactico.setText("Analisis realizado correctamente");
+            txtSintactico.setText("CORRECTO");
             txtSintactico.setForeground(Color.GREEN);
+            ArrayList<String> symRecover = s.getSintax();
+            System.out.println(symRecover);
+            System.out.println("-----------");
+            
+            
+            if(!symRecover.toString().equals("[]")){
+                txtSintactico.setText(symRecover.toString());
+                txtSintactico.setForeground(Color.RED);
+            }
         } catch (Exception ex) {
-            Symbol sym = s.getS();
-            txtSintactico.setText("Error de sintaxis. Linea: " + (sym.right + 1) + " Columna: " + (sym.left + 1) + ", Texto: \"" + sym.value + "\"");
-            txtSintactico.setForeground(Color.red);
+          /* String symError = s.getS();
+           txtSintactico.setText(symError);
+           txtSintactico.setForeground(Color.red);*/
         }
+       //s.listaRecover.clear();
     }//GEN-LAST:event_btnAnalizarSinActionPerformed
 
     /**

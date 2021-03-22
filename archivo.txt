@@ -1,8 +1,6 @@
-Public Module Module1
+Public odule Module1
 
-    Public Sub Main()
+    Public Sb Main()
         Dim mynumber = 2+23
-        Dim a AS integer  = 20 
-       a = raiz a
-    End Sub
-End Module
+        Dim a As integer  = 20 
+
