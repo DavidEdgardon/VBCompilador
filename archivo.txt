@@ -1,6 +1,14 @@
-Public odule Module1
+Public Module module1
+     public function hipotenusa(lado1 as integer, lado2 as integer) as integer
+            lado1_a_la_2.lado1lado1
+            lado2_a_la_2 = lado2lado2
+            sumalados= lado1_a_la_2 + lado2_a_la_2
+            raiz(sumalados)
+            console.writeline("la hipotenusa fue calculada")
+     End Function
 
-    Public Sb Main()
-        Dim mynumber = 2+23
-        Dim a As integer  = 20 
+     sub main()
+          hipotenusa(3,4)
+     end sub
+end module
 

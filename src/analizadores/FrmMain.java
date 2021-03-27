@@ -430,8 +430,8 @@ public class FrmMain extends javax.swing.JFrame {
         
         try {
             s.parse();
-            txtSintactico.setText("CORRECTO");
-            txtSintactico.setForeground(Color.GREEN);
+            txtSintactico.setText("SINTAXIS CORRECTA");
+            txtSintactico.setForeground(Color.BLUE);
             ArrayList<String> symRecover = s.getSintax();
             System.out.println(symRecover);
             System.out.println("-----------");
@@ -441,12 +441,19 @@ public class FrmMain extends javax.swing.JFrame {
                 txtSintactico.setText(symRecover.toString());
                 txtSintactico.setForeground(Color.RED);
             }
+            
+           String symError = s.getS();
+           if(!symError.equals("")){
+               txtSintactico.setText(symError);
+               txtSintactico.setForeground(Color.red);
+           } 
         } catch (Exception ex) {
-          /* String symError = s.getS();
+           String symError = s.getS();
            txtSintactico.setText(symError);
-           txtSintactico.setForeground(Color.red);*/
+           txtSintactico.setForeground(Color.red);
+           txtSintactico.setBackground(Color.black);
         }
-       //s.listaRecover.clear();
+       
     }//GEN-LAST:event_btnAnalizarSinActionPerformed
 
     /**

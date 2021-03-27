@@ -20,15 +20,15 @@ parser code
         return listaRecover;
     }
 
-   /* @Override
+    @Override
     public void unrecovered_syntax_error(Symbol cur_token){
-       unrecovered = "Error Sintactico en la Linea " + (cur_token.right+1)+ "Columna "+cur_token.left+". Palabras/Simbolo " + cur_token.value + " no reconocido"; 
+       unrecovered = "Error Sintactico IRRECUPERABLE en la Linea: " + (cur_token.right+1)+ " Columna "+cur_token.left+". Palabras/Simbolo " + cur_token.value + " no reconocido"; 
     }
 
     public String getS(){
         return unrecovered;
 }
-*/
+
 
 :};
 
@@ -90,38 +90,74 @@ precedence right tk_Potencia;
 
 start with INICIO;
        
-INICIO ::= MODULE | error MODULE;
+INICIO ::= MODULE;
 
-MODULE ::= tk_public tk_module tk_Identificador tk_Linea OPCPROCESO 
+MODULE ::= tk_public tk_module tk_Identificador tk_Linea OPCPROCESO
+            | error tk_module tk_Identificador tk_Linea OPCPROCESO
+            | tk_public error tk_Identificador tk_Linea OPCPROCESO
+            | tk_public tk_module error tk_Linea OPCPROCESO
             | COMENTARIO OPCPROCESO
-            | error OPCPROCESO;
+            | error tk_Linea OPCPROCESO;
 
 COMENTARIO ::= tk_comentario tk_Linea;
 
-FUNC ::= tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC;
-STRUCT ::= tk_public tk_structure tk_Identificador tk_Linea CUERPOSTRUC;
-SUBPROCESS ::= tk_public tk_sub tk_Identificador tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO;
-MAIN ::=  tk_public tk_sub tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO;
+FUNC ::= tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC
+        | error tk_function tk_Identificador tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC 
+        | tk_public error tk_Identificador tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC
+        | tk_public tk_function error tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC
+        | tk_public tk_function tk_Identificador error PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC
+        | tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS error TIPOD tk_Linea CUERPOFUNC;
 
-ENDMODULE ::= tk_end tk_module tk_Linea;
-ENDFUNC ::= tk_end tk_function tk_Linea;
-ENDSTRUCT ::= tk_end tk_structure tk_Linea;
-ENDSUB ::= tk_end tk_sub tk_Linea;
+STRUCT ::= tk_public tk_structure tk_Identificador tk_Linea CUERPOSTRUC
+        | error tk_structure tk_Identificador tk_Linea CUERPOSTRUC
+        | tk_public error tk_Identificador tk_Linea CUERPOSTRUC
+        | tk_public tk_structure error tk_Linea CUERPOSTRUC;
+
+SUBPROCESS ::= tk_public tk_sub tk_Identificador tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO
+            | error tk_sub tk_Identificador tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO
+            | tk_public error tk_Identificador tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO
+            | tk_public tk_sub error tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO
+            | tk_public tk_sub tk_Identificador error PARAMETROS tk_Linea CUERPOPRO;
+
+MAIN ::= tk_sub tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO
+        | error tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO
+        | tk_sub error tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO
+        | tk_sub tk_main error tk_ParentesisC tk_Linea CUERPOPRO
+        | tk_sub tk_main tk_ParentesisA error tk_Linea CUERPOPRO;
+
+ENDMODULE ::= tk_end tk_module tk_Linea
+            | error tk_module tk_Linea
+            | tk_end error tk_Linea;
+
+ENDFUNC ::= tk_end tk_function tk_Linea
+        | error tk_function tk_Linea
+        | tk_end error tk_Linea;
+
+ENDSTRUCT ::= tk_end tk_structure tk_Linea
+        | error tk_structure tk_Linea
+        | tk_end error tk_Linea;
+
+ENDSUB ::= tk_end tk_sub tk_Linea
+        | error tk_sub tk_Linea
+        | tk_end error tk_Linea;
 
 OPCPROCESO ::= FUNC OPCPROCESO 
             | STRUCT OPCPROCESO
             | SUBPROCESS OPCPROCESO
-            | MAIN;
+            | MAIN 
+            | error tk_Linea OPCPROCESO;
 
-OPCPROCESOAUX ::= FUNC OPCPROCESO 
-            | STRUCT OPCPROCESO
-            | SUBPROCESS OPCPROCESO
-            | ENDMODULE;
+OPCPROCESOAUX ::= FUNC OPCPROCESOAUX 
+            | STRUCT OPCPROCESOAUX
+            | SUBPROCESS OPCPROCESOAUX
+            | ENDMODULE 
+            | error tk_Linea OPCPROCESOAUX;
 
 CUERPOSTRUC ::= VARIABLESTRUC CUERPOSTRUC
             | COMENTARIO CUERPOSTRUC
             | SUBPROCESS CUERPOSTRUC
-            | ENDSTRUCT;
+            | ENDSTRUCT
+            | error tk_Linea CUERPOSTRUC;
 
 VARIABLESTRUC ::= tk_Identificador tk_as TIPOD tk_Linea
             | tk_Identificador tk_as tk_boolean tk_Igual OPCBOOL tk_Linea
@@ -137,7 +173,8 @@ CUERPOFUNC ::= SINTAXFOR_FUNC CUERPOFUNC
             | CONSOLEWRITE CUERPOFUNC
             | OPERACIONES CUERPOFUNC
             | COMENTARIO CUERPOFUNC
-            | ENDFUNC;
+            | ENDFUNC
+            | error tk_Linea CUERPOFUNC;
 
 SINTAXIF_FUNC ::= tk_if CONDICION tk_then tk_Linea INIF_FUNC tk_end tk_if tk_Linea;
 
@@ -269,7 +306,8 @@ CUERPOPRO ::= SINTAXFOR CUERPOPRO
         | OPERACIONES CUERPOPRO   
         | SINTAXWHILE CUERPOPRO
         | COMENTARIO CUERPOPRO
-        | ENDSUB OPCPROCESOAUX;   
+        | ENDSUB OPCPROCESOAUX
+        | error tk_Linea CUERPOPRO;   
 
 PARAMETROS ::= tk_byval tk_Identificador tk_as TIPOD PARAMETROS 
             | tk_Identificador tk_as TIPOD  PARAMETROS
@@ -339,7 +377,7 @@ IDENTIFICADORESUB ::=  tk_Coma iDNUM IDENTIFICADORESUB
 LLAMADAFUNC ::= tk_Identificador tk_ParentesisA IDENTIFICADORES tk_Linea
             | tk_Identificador tk_ParentesisA tk_ParentesisC tk_Linea
             | tk_Identificador iDNUM IDENTIFICADORESUB tk_Linea
-            | tk_Identificador iDNUM tk_Linea
+            | tk_Identificador iDNUM tk_Linea 
             | tk_Identificador tk_ParentesisA tk_ParentesisA IDENTIFICADORES tk_ParentesisC tk_Linea
             | tk_Identificador tk_ParentesisA IDENTIFICADORES IDENTIFICADORESUB tk_Linea;
 
