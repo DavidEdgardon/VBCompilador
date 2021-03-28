@@ -1,0 +1,28 @@
+Public module factorial
+
+public function facts(i as integer) as integer
+F = 1
+For j = 1 To i step 1
+F = F * j
+facts = F
+'error next sin asignar siguiente valor
+Next 
+
+'error end funtion
+End Functio
+
+
+sub main(
+'error main sin cierre
+Dim n As Integer
+
+Console.Writeline("ingrese un numero para calcular su factortial")
+
+  n=console.readline();
+
+'error deberia ser una variable
+facts("n")
+
+End Sub
+end module
+
