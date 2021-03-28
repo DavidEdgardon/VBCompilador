@@ -73,13 +73,13 @@ terminal tk_dim, tk_as, tk_exit, tk_readline, tk_end, tk_main, tk_Linea;
 /* Valores */
 terminal String tk_valorString;
 terminal String tk_Identificador;
-terminal Integer tk_Numero;
+terminal String tk_Numero;
 
 non terminal OPCPROCESO , PARAMETROS,VARIABLE ,ASIGNACIONVAL, CONSOLEWRITE, TIPOD, OPCBOOL, CUERPOFUNC, CUERPOPRO,
              CUERPOSTRUC,SINTAXIF,INIF,INELSE,INELSEIF,SINTAXELSEIF, CONDICION, SINTAXFOR,OPCRELACIONALES, AUMDEC, SINTAXWHILE,
-             iDNUM, VALOR,VARIABLESTRUC,LLAMADAFUNC, IDENTIFICADORES, IDENTIFICADORESPRIMA, OPERACIONES, OPEARITMETICA, 
+             iDNUM, VALOR,VARIABLESTRUC,LLAMADAFUNC, IDENTIFICADORES, OPERACIONES, OPEARITMETICA, 
              IDENTIFICADORESUB, INFOR, INWHILE, OPERACIONAUX,MAIN,ENDMODULE,ENDSUB,ENDSTRUCT,ENDFUNC,OPCPROCESOAUX,MODULE,
-             SINTAXIF_WHILE, INIF_WHILE, INELSE_WHILE, INELSEIF_WHILE, SINTAXELSEIF_WHILE,INFOR_WHILE, SINTAXFOR_WHILE,COMENTARIO,
+             SINTAXIF_WHILE, INIF_WHILE, INELSE_WHILE, INELSEIF_WHILE, SINTAXELSEIF_WHILE,INFOR_WHILE, SINTAXFOR_WHILE,
              SINTAXWHILE_FOR,INWHILE_FOR, SINTAXIF_FOR, SINTAXELSEIF_FOR, INIF_FOR, INELSEIF_FOR, INELSE_FOR,FUNC,STRUCT,SUBPROCESS,
              SINTAXWHILE_FUNC, INWHILE_FUNC, SINTAXIF_FUNC, SINTAXELSEIF_FUNC, INIF_FUNC, INELSEIF_FUNC, INELSE_FUNC,INFOR_FUNC,
              SINTAXFOR_FUNC;
@@ -94,20 +94,18 @@ precedence right tk_Potencia;
 start with MODULE;
        
 MODULE ::=  tk_public tk_module tk_Identificador tk_Linea OPCPROCESO:inmod{:
-        Nodo tmp = new Nodo("INICIO");
-        tmp.setNumNodo(parser.contador++);
-        tmp.addHijo((Nodo)inmod);
-        parser.padre = (Nodo) tmp;
-        System.out.println("OK");
-        RESULT=tmp;
-:}
+                Nodo tmp = new Nodo("INICIO");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)inmod);
+                parser.padre = (Nodo) tmp;
+                System.out.println("OK");
+                RESULT=tmp;
+            :}
             | error tk_module tk_Identificador tk_Linea OPCPROCESO
             | tk_public error tk_Identificador tk_Linea OPCPROCESO
-            | tk_public tk_module error tk_Linea OPCPROCESO
-            | COMENTARIO OPCPROCESO
+            | tk_public tk_module error tk_Linea OPCPROCESO    
             | error tk_Linea OPCPROCESO;
 
-COMENTARIO ::= tk_true;
 
 FUNC ::= tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS:param tk_as TIPOD tk_Linea CUERPOFUNC:infunc {: 
             Nodo tmp = new Nodo("FUNCION");
@@ -164,49 +162,68 @@ ENDMODULE ::= tk_end tk_module tk_Linea {:
             | error tk_module tk_Linea
             | tk_end error tk_Linea;
 
-ENDFUNC ::= tk_end tk_function tk_Linea
+ENDFUNC ::= tk_end tk_function tk_Linea {: 
+            Nodo tmp = new Nodo("ENDFUNC");
+            tmp.setNumNodo(parser.contador++);
+            RESULT=tmp;
+        :}
         | error tk_function tk_Linea
         | tk_end error tk_Linea;
 
-ENDSTRUCT ::= tk_end tk_structure tk_Linea
+ENDSTRUCT ::= tk_end tk_structure tk_Linea {: 
+            Nodo tmp = new Nodo("ENDSTRUCT");
+            tmp.setNumNodo(parser.contador++);
+            RESULT=tmp;
+        :}
         | error tk_structure tk_Linea
         | tk_end error tk_Linea;
 
 ENDSUB ::= tk_end tk_sub tk_Linea {: 
-         Nodo tmp = new Nodo("ENDSUB");
-         tmp.setNumNodo(parser.contador++);
-         RESULT=tmp;
-
+            Nodo tmp = new Nodo("ENDSUB");
+            tmp.setNumNodo(parser.contador++);
+            RESULT=tmp;
         :}
         | error tk_sub tk_Linea
         | tk_end error tk_Linea;
 
 OPCPROCESO ::= FUNC:func OPCPROCESO:inmod {:
-            Nodo tmp = new Nodo("MODULE");
-            tmp.setNumNodo(parser.contador++);
-            tmp.addHijo((Nodo)func);
-            tmp.addHijo((Nodo)inmod);
-            RESULT=tmp;
+                Nodo tmp = new Nodo("INMODULE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)func);
+                tmp.addHijo((Nodo)inmod);
+                RESULT=tmp;
              :}
             | STRUCT:strt OPCPROCESO:inmod {:
-            Nodo tmp = new Nodo("MODULE");
-            tmp.setNumNodo(parser.contador++);
-            tmp.addHijo((Nodo)strt);
-            tmp.addHijo((Nodo)inmod);
-            RESULT=tmp;
+                Nodo tmp = new Nodo("INMODULE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)strt);
+                tmp.addHijo((Nodo)inmod);
+                RESULT=tmp;
              :}
             | SUBPROCESS:subpro OPCPROCESO:inmod{:
-            Nodo tmp = new Nodo("MODULE");
-            tmp.setNumNodo(parser.contador++);
-            tmp.addHijo((Nodo)subpro);
-            tmp.addHijo((Nodo)inmod);
-            RESULT=tmp;
+                Nodo tmp = new Nodo("INMODULE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)subpro);
+                tmp.addHijo((Nodo)inmod);
+                RESULT=tmp;
              :}
+            | tk_comentario:com tk_Linea OPCPROCESO:inmod{:
+                Nodo tmp = new Nodo("INMODULE");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Comentario");
+                nd1.setValor(com.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                tmp.addHijo((Nodo)inmod);
+                RESULT=tmp;
+            :}
             | MAIN:main {:
-            Nodo tmp = new Nodo("MODULE");
-            tmp.setNumNodo(parser.contador++);
-            tmp.addHijo((Nodo)main);
-            RESULT=tmp;
+                Nodo tmp = new Nodo("INMODULE");
+                tmp.setNumNodo(parser.contador++);           
+                tmp.addHijo((Nodo)main);
+                RESULT=tmp;
              :}
             | error tk_Linea OPCPROCESO;
 
@@ -214,37 +231,150 @@ OPCPROCESOAUX ::= FUNC OPCPROCESOAUX
             | STRUCT OPCPROCESOAUX
             | SUBPROCESS OPCPROCESOAUX
             | ENDMODULE:endm {: 
-            Nodo tmp = new Nodo("INMODULE");
-            tmp.setNumNodo(parser.contador++);
-            tmp.addHijo((Nodo)endm);
-            RESULT=tmp;
+                Nodo tmp = new Nodo("INMODULE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)endm);
+                RESULT=tmp;
             :}
             | error tk_Linea OPCPROCESOAUX;
 
-CUERPOSTRUC ::= VARIABLESTRUC CUERPOSTRUC
-            | COMENTARIO CUERPOSTRUC
-            | SUBPROCESS CUERPOSTRUC
-            | ENDSTRUCT
+CUERPOSTRUC ::= VARIABLESTRUC:varstr CUERPOSTRUC:instruct {: 
+                Nodo tmp = new Nodo("INSTRUCT");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)varstr);
+                tmp.addHijo((Nodo)instruct);
+                RESULT=tmp;
+            :}
+            | tk_comentario:com tk_Linea CUERPOSTRUC:instruct {: 
+                Nodo tmp = new Nodo("INSTRUCT");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Comentario");
+                nd1.setValor(com.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                tmp.addHijo((Nodo)instruct);
+                RESULT=tmp;
+            :}
+            | SUBPROCESS:subp CUERPOSTRUC:instruct {: 
+                Nodo tmp = new Nodo("INSTRUCT");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)subp);
+                tmp.addHijo((Nodo)instruct);
+                RESULT=tmp;
+            :}
+            | ENDSTRUCT:endstruct {: 
+                Nodo tmp = new Nodo("INSTRUCT");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)endstruct);
+                RESULT=tmp;
+            :}
             | error tk_Linea CUERPOSTRUC;
 
-VARIABLESTRUC ::= tk_Identificador tk_as TIPOD tk_Linea
-            | tk_Identificador tk_as tk_boolean tk_Igual OPCBOOL tk_Linea
-            | tk_Identificador tk_as tk_String tk_Igual tk_valorString tk_Linea
-            | tk_Identificador tk_as tk_integer tk_Igual tk_Numero tk_Linea;
+VARIABLESTRUC ::= tk_Identificador:i tk_as TIPOD:tipod tk_Linea {: 
+                    Nodo tmp = new Nodo("Variable");
+                    tmp.setNumNodo(parser.contador++);
 
-CUERPOFUNC ::= SINTAXFOR_FUNC CUERPOFUNC
-            | SINTAXWHILE_FUNC CUERPOFUNC
-            | SINTAXIF_FUNC CUERPOFUNC
-            | VARIABLE CUERPOFUNC
-            | LLAMADAFUNC CUERPOFUNC
-            | ASIGNACIONVAL CUERPOFUNC
-            | CONSOLEWRITE CUERPOFUNC
-            | OPERACIONES CUERPOFUNC
-            | COMENTARIO CUERPOFUNC
-            | ENDFUNC
+                    Nodo nd1 = new Nodo("Identificador");
+                    nd1.setValor(i.toString());
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    tmp.addHijo((Nodo)tipod);
+
+                    RESULT = tmp;
+            :}
+            | tk_Identificador:i tk_as TIPOD:tipod tk_Igual VALOR:valor tk_Linea {: 
+                    Nodo tmp = new Nodo("Variable");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Identificador");
+                    nd1.setValor(i.toString());
+                    nd1.setNumNodo(parser.contador++);
+ 
+                    tmp.addHijo(nd1);
+                    tmp.addHijo((Nodo)tipod);
+                    tmp.addHijo((Nodo)valor);
+
+                    RESULT = tmp;
+            :};
+
+CUERPOFUNC ::= SINTAXFOR_FUNC:forfun CUERPOFUNC:cuerpo {:
+                Nodo tmp = new Nodo("FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)forfun);
+                tmp.addHijo((Nodo)cuerpo);
+                RESULT=tmp;
+            :}
+            | SINTAXWHILE_FUNC:whilefn CUERPOFUNC:cuerpo {:
+                Nodo tmp = new Nodo("while");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)whilefn);
+                tmp.addHijo((Nodo)cuerpo);
+                RESULT=tmp;
+            :}
+            | SINTAXIF_FUNC:iffn CUERPOFUNC:cuerpo {:
+                Nodo tmp = new Nodo("INFUNCTION");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)iffn);
+                tmp.addHijo((Nodo)cuerpo);
+                RESULT=tmp;
+            :}
+            | VARIABLE:varfn CUERPOFUNC:cuerpo {:
+                Nodo tmp = new Nodo("VARIABLE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)varfn);
+                tmp.addHijo((Nodo)cuerpo);
+                RESULT=tmp;
+            :}
+            | LLAMADAFUNC:fun CUERPOFUNC:cuerpo{:
+                Nodo tmp = new Nodo("llamada funcion");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)fun);
+                tmp.addHijo((Nodo)cuerpo);
+                RESULT=tmp;
+            :}
+            | ASIGNACIONVAL:asing CUERPOFUNC:cuerpo{:
+                Nodo tmp = new Nodo("ASIGNACION");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)asing);
+                tmp.addHijo((Nodo)cuerpo);
+                RESULT=tmp;
+            :}
+            | CONSOLEWRITE CUERPOFUNC {: 
+            
+            :}
+            | OPERACIONES:op CUERPOFUNC:cuerpo{:
+                Nodo tmp = new Nodo("ASIGNACION");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)op);
+                tmp.addHijo((Nodo)cuerpo);
+                RESULT=tmp;
+            :}
+            | tk_comentario tk_Linea CUERPOFUNC {:
+
+            :}
+            | ENDFUNC{:
+                Nodo tmp = new Nodo("END FUNC");
+                tmp.setNumNodo(parser.contador++);
+                 RESULT=tmp;
+            :}
             | error tk_Linea CUERPOFUNC;
 
-SINTAXIF_FUNC ::= tk_if CONDICION tk_then tk_Linea INIF_FUNC tk_end tk_if tk_Linea;
+SINTAXIF_FUNC ::= tk_if CONDICION:con tk_then tk_Linea INIF_FUNC:inif tk_end:endif tk_if tk_Linea{:
+            Nodo tmp = new Nodo("IF");
+            tmp.setNumNodo(parser.contador++);
+            
+
+            Nodo nd1 = new Nodo("End if");
+            nd1.setNumNodo(parser.contador++);
+            
+            tmp.addHijo((Nodo)con);
+            tmp.addHijo((Nodo)inif);
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+        :};
 
 SINTAXELSEIF_FUNC::= CONDICION tk_then tk_Linea INELSEIF_FUNC;
 
@@ -367,36 +497,139 @@ TERMINA CUERPO FUNCION
 
 CUERPOPRO ::= SINTAXFOR CUERPOPRO
         | SINTAXIF CUERPOPRO
-        | VARIABLE CUERPOPRO
+        | VARIABLE:var CUERPOPRO:inmain {: 
+        Nodo tmp = new Nodo("INMAIN");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            tmp.addHijo((Nodo)inmain);
+            RESULT=tmp;
+        :}
         | LLAMADAFUNC CUERPOPRO
         | ASIGNACIONVAL CUERPOPRO
         | CONSOLEWRITE CUERPOPRO
         | OPERACIONES CUERPOPRO   
         | SINTAXWHILE CUERPOPRO
-        | COMENTARIO CUERPOPRO
-        | ENDSUB:ends OPCPROCESOAUX:inmod {:
+        | tk_comentario tk_Linea CUERPOPRO
+        | ENDSUB:ends OPCPROCESOAUX:inmain {:
             Nodo tmp = new Nodo("INMAIN");
             tmp.setNumNodo(parser.contador++);
             tmp.addHijo((Nodo)ends);
-            tmp.addHijo((Nodo)inmod);
+            tmp.addHijo((Nodo)inmain);
             RESULT=tmp;
         :}
         | error tk_Linea CUERPOPRO;   
 
-PARAMETROS ::= tk_byval tk_Identificador tk_as TIPOD PARAMETROS 
+PARAMETROS ::= tk_byval tk_Identificador tk_as TIPOD PARAMETROS {: 
+            
+            :}
             | tk_Identificador tk_as TIPOD  PARAMETROS
             | tk_Coma tk_byval tk_Identificador tk_as TIPOD PARAMETROS 
             | tk_Coma tk_Identificador tk_as TIPOD  PARAMETROS
             | tk_ParentesisC ;
             
-VALOR ::= OPCBOOL | iDNUM | tk_valorString; 
+VALOR ::= OPCBOOL:opcbool {: 
+            Nodo tmp = new Nodo("VALOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)opcbool);
+            RESULT=tmp;
+        :}| iDNUM:idnum {:
+            Nodo tmp = new Nodo("VALOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)idnum);
+            RESULT=tmp; 
+        :}| tk_valorString:str {:
+           Nodo tmp = new Nodo("ValorString");
+            tmp.setNumNodo(parser.contador++);
+            tmp.setValor(str.toString().replaceAll("\"", ""));
+            RESULT=tmp;
+        :}; 
 
-VARIABLE ::= tk_dim tk_Identificador tk_as TIPOD tk_Linea |
-            tk_dim tk_Identificador tk_as TIPOD tk_Igual VALOR tk_Linea|
-            tk_dim tk_Identificador tk_as TIPOD tk_Igual LLAMADAFUNC |
-            tk_dim tk_Identificador tk_Igual VALOR tk_Linea |
-            tk_dim tk_Identificador tk_Igual OPERACIONES |
-            tk_Identificador tk_punto tk_Identificador tk_Igual VALOR tk_Linea; 
+VARIABLE ::= tk_dim tk_Identificador:i tk_as TIPOD:tipod tk_Linea {: 
+                Nodo tmp = new Nodo("Variable");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                tmp.addHijo((Nodo)tipod);
+
+                RESULT = tmp;
+            :}|
+            tk_dim tk_Identificador:i tk_as TIPOD:tipod tk_Igual VALOR:val tk_Linea {: 
+                Nodo tmp = new Nodo("Variable");
+               tmp.setNumNodo(parser.contador++);
+
+               Nodo nd1 = new Nodo("Identificador");
+               nd1.setValor(i.toString());
+               nd1.setNumNodo(parser.contador++);
+
+               tmp.addHijo(nd1);
+               tmp.addHijo((Nodo)tipod);
+               tmp.addHijo((Nodo)val);
+
+               RESULT = tmp;
+            :}|
+            tk_dim tk_Identificador:i tk_as TIPOD:tipod tk_Igual LLAMADAFUNC:llamfunc {: 
+               Nodo tmp = new Nodo("Variable");
+               tmp.setNumNodo(parser.contador++);
+
+               Nodo nd1 = new Nodo("Identificador");
+               nd1.setValor(i.toString());
+               nd1.setNumNodo(parser.contador++);
+
+               tmp.addHijo(nd1);
+               tmp.addHijo((Nodo)tipod);
+               tmp.addHijo((Nodo)llamfunc);
+
+               RESULT = tmp;
+            :}|            
+            tk_dim tk_Identificador:i tk_Igual VALOR:val tk_Linea {:
+                Nodo tmp = new Nodo("Variable");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                tmp.addHijo((Nodo)val);
+
+                RESULT = tmp;
+            :}|
+            tk_dim tk_Identificador:i tk_Igual OPERACIONES:oper {: 
+                Nodo tmp = new Nodo("Variable");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                tmp.addHijo((Nodo)oper);
+
+                RESULT = tmp;
+
+            :}|
+            tk_Identificador:i tk_punto tk_Identificador:ii tk_Igual VALOR:val tk_Linea {:
+                Nodo tmp = new Nodo("Variable");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                Nodo nd2 = new Nodo("Identificador");
+                nd2.setValor(ii.toString());
+                nd2.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                tmp.addHijo(nd2);
+                tmp.addHijo((Nodo)val);
+
+                RESULT = tmp;
+            :}; 
             
 ASIGNACIONVAL ::= tk_Identificador tk_Igual VALOR tk_Linea
                   | tk_Identificador tk_Igual OPERACIONES 
@@ -406,54 +639,372 @@ ASIGNACIONVAL ::= tk_Identificador tk_Igual VALOR tk_Linea
                   | tk_Identificador tk_punto tk_Identificador tk_Igual tk_cs tk_punto tk_readline tk_ParentesisA tk_ParentesisC tk_Linea;
 
 
-OPCBOOL ::= tk_true | tk_false;
+OPCBOOL ::= tk_true {:
+            Nodo tmp = new Nodo("True");
+            tmp.setNumNodo(parser.contador++);
+            RESULT = tmp;
+        :}| tk_false{:
+            Nodo tmp = new Nodo("False");
+            tmp.setNumNodo(parser.contador++);
+            RESULT = tmp;
+            :};
 
-TIPOD ::= tk_String | tk_integer | tk_boolean;
+TIPOD ::= tk_String:strg {:
+            Nodo tmp = new Nodo("String");
+            tmp.setValor(strg.toString());
+            tmp.setNumNodo(parser.contador++);
+            RESULT = tmp;
+         :}|
+            tk_integer:intv {: 
+            Nodo tmp = new Nodo("Integer");
+            tmp.setValor(intv.toString());
+            tmp.setNumNodo(parser.contador++);
+            RESULT = tmp; 
+            :}| 
+            tk_boolean:boolv {: 
+            Nodo tmp = new Nodo("Boolean");
+            tmp.setValor(boolv.toString());
+            tmp.setNumNodo(parser.contador++);
+            RESULT = tmp;
+            :};
+            
 
-OPCRELACIONALES ::= tk_mayorque |
-                    tk_mayorigual | 
-                    tk_menorque |
-                    tk_menorigual |
-                    tk_Igual;
+OPCRELACIONALES ::= tk_mayorque:mq{:
+                        Nodo tmp = new Nodo("MayorQue");
+                        tmp.setValor(mq.toString());
+                        tmp.setNumNodo(parser.contador++);
+                        RESULT = tmp;
+                    :}|
+                    tk_mayorigual:mi{:
+                        Nodo tmp = new Nodo("MenorIgual");
+                        tmp.setValor(mi.toString());
+                        tmp.setNumNodo(parser.contador++);
+                        RESULT = tmp;
+                    :}| 
+                    tk_menorque:meq {:
+                        Nodo tmp = new Nodo("MenorQque");
+                        tmp.setValor(meq.toString());
+                        tmp.setNumNodo(parser.contador++);
+                        RESULT = tmp;
+                    :}|
+                    tk_menorigual:mei{:
+                        Nodo tmp = new Nodo("MenorIgual");
+                        tmp.setValor(mei.toString());
+                        tmp.setNumNodo(parser.contador++);
+                        RESULT = tmp;
+                    :} |
+                    tk_Igual:iq{:
+                        Nodo tmp = new Nodo("Igual");
+                        tmp.setValor(iq.toString());
+                        tmp.setNumNodo(parser.contador++);
+                        RESULT = tmp;
+                    :};
       
-iDNUM ::= tk_Identificador | tk_Numero;
+iDNUM ::= tk_Identificador:id {:
+            Nodo tmp = new Nodo("Identificador");
+            tmp.setValor(id.toString());
+            tmp.setNumNodo(parser.contador++);
+            RESULT = tmp;
+        :}| tk_Numero:num {: 
+            Nodo tmp = new Nodo("Numero");
+            tmp.setValor(num.toString());
+            tmp.setNumNodo(parser.contador++);
+            RESULT = tmp;
+        :}
+        ;
 
-CONDICION ::= iDNUM OPCRELACIONALES iDNUM 
-            | iDNUM OPCRELACIONALES OPCBOOL 
-            | iDNUM OPCRELACIONALES tk_Identificador tk_ParentesisA IDENTIFICADORES
-            | OPCBOOL
-            | iDNUM OPCRELACIONALES tk_ParentesisA iDNUM OPEARITMETICA iDNUM tk_ParentesisC;
+CONDICION ::= iDNUM:id OPCRELACIONALES:opcr iDNUM:idd {:
+                    Nodo tmp = new Nodo("Condicion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)id);
+                    tmp.addHijo((Nodo)opcr);
+                    tmp.addHijo((Nodo)idd);
+                    RESULT = tmp;
+            :}
+            | iDNUM:id OPCRELACIONALES:opcr OPCBOOL:opb {: 
+                    Nodo tmp = new Nodo("Condicion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)id);
+                    tmp.addHijo((Nodo)opcr);
+                    tmp.addHijo((Nodo)opb);
+                    RESULT = tmp;
+            :}
+            | iDNUM:id OPCRELACIONALES:opr tk_Identificador:i tk_ParentesisA IDENTIFICADORES:ids {: 
+                    Nodo tmp = new Nodo("Condicion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)id);
+                    tmp.addHijo((Nodo)opr);
+
+                    Nodo nd1 = new Nodo("Identificador");
+                    nd1.setValor(i.toString());
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    tmp.addHijo((Nodo)ids);
+                    RESULT = tmp;
+            :}
+            | OPCBOOL:opb {: 
+                    Nodo tmp = new Nodo("Condicion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)opb);
+                    RESULT = tmp;
+            :} 
+            | iDNUM:id OPCRELACIONALES:opcr tk_ParentesisA iDNUM:idd OPEARITMETICA:opea iDNUM:iddd tk_ParentesisC {:
+                    Nodo tmp = new Nodo("Condicion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)id);
+                    tmp.addHijo((Nodo)opcr);
+                    tmp.addHijo((Nodo)idd);
+                    tmp.addHijo((Nodo)opea);
+                    tmp.addHijo((Nodo)iddd);
+                    RESULT = tmp;
+            :};
 
 AUMDEC ::= tk_Resta tk_Numero 
         | tk_Numero ;
 
-OPERACIONES ::= iDNUM OPEARITMETICA OPERACIONAUX
-                | tk_ParentesisA iDNUM OPEARITMETICA OPERACIONAUX;
+OPERACIONES ::= iDNUM:id OPEARITMETICA:signo OPERACIONAUX:operb {:
+                    Nodo tmp = new Nodo("Operacion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)id);
+                    tmp.addHijo((Nodo)signo);
+                    tmp.addHijo((Nodo)operb);
+                    RESULT = tmp;
+                 :}
+                | tk_ParentesisA iDNUM:id OPEARITMETICA:signo OPERACIONAUX:operb {: 
+                    Nodo tmp = new Nodo("Operacion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)id);
+                    tmp.addHijo((Nodo)signo);
+                    tmp.addHijo((Nodo)operb);
+                    RESULT = tmp;
+                :};
 
-OPERACIONAUX ::=  iDNUM OPEARITMETICA OPERACIONAUX
-                | tk_ParentesisA iDNUM OPEARITMETICA OPERACIONAUX
-                | OPEARITMETICA iDNUM OPERACIONAUX
-                | iDNUM tk_ParentesisC OPERACIONAUX
-                | OPEARITMETICA iDNUM tk_Linea
-                | iDNUM tk_ParentesisC tk_Linea
-                | iDNUM tk_Linea;
+OPERACIONAUX ::=  iDNUM:id OPEARITMETICA:signo OPERACIONAUX:operb {: 
+                    Nodo tmp = new Nodo("InOperacion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)id);
+                    tmp.addHijo((Nodo)signo);
+                    tmp.addHijo((Nodo)operb);
+                    RESULT = tmp;
+                :}
+                | tk_ParentesisA iDNUM:id OPEARITMETICA:signo OPERACIONAUX:operb {:
+                    Nodo tmp = new Nodo("InOperacion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)id);
+                    tmp.addHijo((Nodo)signo);
+                    tmp.addHijo((Nodo)operb);
+                    RESULT = tmp;
+                :}
+                | OPEARITMETICA:signo iDNUM:id OPERACIONAUX:operb {: 
+                    Nodo tmp = new Nodo("InOperacion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)signo);
+                    tmp.addHijo((Nodo)id);
+                    tmp.addHijo((Nodo)operb);
+                    RESULT = tmp;
+                :}
+                | iDNUM:id tk_ParentesisC OPERACIONAUX:operb {:
+                    Nodo tmp = new Nodo("InOperacion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)id);
+                    tmp.addHijo((Nodo)operb);
+                    RESULT = tmp;
+                :}
+                | OPEARITMETICA:signo iDNUM:id tk_Linea {: 
+                    Nodo tmp = new Nodo("InOperacion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)signo);
+                    tmp.addHijo((Nodo)id);
+                    RESULT = tmp;
+                :}
+                | iDNUM:id tk_ParentesisC tk_Linea {: 
+                    Nodo tmp = new Nodo("InOperacion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)id);
+                    RESULT = tmp;       
+                :}
+                | iDNUM:id tk_Linea {: 
+                    Nodo tmp = new Nodo("InOperacion");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)id);
+                    RESULT = tmp;
+                :};
 
-OPEARITMETICA ::= tk_Suma | tk_Resta | tk_Multiplicacion | tk_Division | tk_Signomod | tk_Potencia ; 
+OPEARITMETICA ::= tk_Suma:sum{:  
+                    Nodo tmp = new Nodo("Suma");
+                    tmp.setValor(sum.toString());
+                    tmp.setNumNodo(parser.contador++);
+                    RESULT = tmp;
+                :}| tk_Resta:resta {: 
+                    Nodo tmp = new Nodo("Resta");
+                    tmp.setValor(resta.toString());
+                    tmp.setNumNodo(parser.contador++);
+                    RESULT = tmp;
+                :} | tk_Multiplicacion:mul {:
+                    Nodo tmp = new Nodo("Multiplicacion");
+                    tmp.setValor(mul.toString());
+                    tmp.setNumNodo(parser.contador++);
+                    RESULT = tmp;
+                :}| tk_Division:div {:
+                    Nodo tmp = new Nodo("Division");
+                    tmp.setValor(div.toString());
+                    tmp.setNumNodo(parser.contador++);
+                    RESULT = tmp;
+                :}| tk_Signomod:mod {:
+                    Nodo tmp = new Nodo("Mod");
+                    tmp.setValor(mod.toString());
+                    tmp.setNumNodo(parser.contador++);
+                    RESULT = tmp;
+                :}| tk_Potencia:pot {:
+                    Nodo tmp = new Nodo("Potencia");
+                    tmp.setValor(pot.toString());
+                    tmp.setNumNodo(parser.contador++);
+                    RESULT = tmp;
+                :} ; 
 
-IDENTIFICADORES ::= iDNUM IDENTIFICADORESPRIMA ;
+IDENTIFICADORES ::= iDNUM:a tk_Coma iDNUM:b tk_Coma iDNUM:c tk_Coma iDNUM:d tk_Coma iDNUM:e tk_ParentesisC{: 
+                    Nodo tmp = new Nodo("Parametros Llamada");
+                    tmp.setNumNodo(parser.contador++);
 
-IDENTIFICADORESPRIMA ::= tk_Coma IDENTIFICADORES
-                    | tk_ParentesisC ;
+                    tmp.addHijo((Nodo)a);
+                    tmp.addHijo((Nodo)b);
+                    tmp.addHijo((Nodo)c);
+                    tmp.addHijo((Nodo)d);
+                    tmp.addHijo((Nodo)e);
 
-IDENTIFICADORESUB ::=  tk_Coma iDNUM IDENTIFICADORESUB 
-                    | tk_Coma iDNUM ;
+                    RESULT = tmp;
+                :}
+                |    iDNUM:a tk_Coma iDNUM:b tk_Coma iDNUM:c tk_Coma iDNUM:d tk_ParentesisC{: 
+                    Nodo tmp = new Nodo("Parametros Llamada");
+                    tmp.setNumNodo(parser.contador++);
 
-LLAMADAFUNC ::= tk_Identificador tk_ParentesisA IDENTIFICADORES tk_Linea
-            | tk_Identificador tk_ParentesisA tk_ParentesisC tk_Linea
-            | tk_Identificador iDNUM IDENTIFICADORESUB tk_Linea
-            | tk_Identificador iDNUM tk_Linea 
-            | tk_Identificador tk_ParentesisA tk_ParentesisA IDENTIFICADORES tk_ParentesisC tk_Linea
-            | tk_Identificador tk_ParentesisA IDENTIFICADORES IDENTIFICADORESUB tk_Linea;
+                    tmp.addHijo((Nodo)a);
+                    tmp.addHijo((Nodo)b);
+                    tmp.addHijo((Nodo)c);
+                    tmp.addHijo((Nodo)d);
+
+                    RESULT = tmp;
+                :}
+                |   iDNUM:a tk_Coma iDNUM:b tk_Coma iDNUM:c tk_ParentesisC{: 
+                    Nodo tmp = new Nodo("Parametros Llamada");
+                    tmp.setNumNodo(parser.contador++);
+
+                    tmp.addHijo((Nodo)a);
+                    tmp.addHijo((Nodo)b);
+                    tmp.addHijo((Nodo)c);
+
+                    RESULT = tmp;
+                :}
+                |   iDNUM:a tk_Coma iDNUM:b tk_ParentesisC{: 
+                    Nodo tmp = new Nodo("Parametros Llamada");
+                    tmp.setNumNodo(parser.contador++);
+
+                    tmp.addHijo((Nodo)a);
+                    tmp.addHijo((Nodo)b);
+
+                    RESULT = tmp;
+                :}
+                | iDNUM:a tk_ParentesisC{:  
+                    Nodo tmp = new Nodo("Parametros Llamada");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)a);
+                    RESULT = tmp; 
+                :};
+               
+
+IDENTIFICADORESUB ::=  tk_Coma iDNUM:a IDENTIFICADORESUB:idsub {: 
+                        Nodo tmp = new Nodo("Parametros Llamada");
+                        tmp.setNumNodo(parser.contador++);
+                        tmp.addHijo((Nodo)a);
+                        tmp.addHijo((Nodo)idsub);
+
+                        RESULT = tmp;
+                    :}
+                    | tk_Coma iDNUM:a {: 
+                        Nodo tmp = new Nodo("Parametros Llamada");
+                        tmp.setNumNodo(parser.contador++);
+                        tmp.addHijo((Nodo)a);
+                        RESULT = tmp; 
+                    :};
+
+LLAMADAFUNC ::= tk_Identificador:i tk_ParentesisA IDENTIFICADORES:ids tk_Linea {: 
+                Nodo tmp = new Nodo("LLAMADAFUNCION");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                nd1.addHijo((Nodo)ids);
+
+                RESULT = tmp;
+            :}
+            | tk_Identificador:i tk_ParentesisA tk_ParentesisC tk_Linea {: 
+                Nodo tmp = new Nodo("LLAMADAFUNCION");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+
+                RESULT = tmp;
+               :}
+            | tk_Identificador:i iDNUM IDENTIFICADORESUB:idsub tk_Linea{: 
+                Nodo tmp = new Nodo("LLAMADAFUNCION");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                nd1.addHijo((Nodo)idsub);
+
+                RESULT = tmp;
+               :}
+
+            | tk_Identificador:i iDNUM:a tk_Linea {: 
+                Nodo tmp = new Nodo("LLAMADAFUNCION");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                tmp.addHijo((Nodo)a);
+                RESULT = tmp;
+               :}
+            | tk_Identificador:i tk_ParentesisA tk_ParentesisA IDENTIFICADORES:ids tk_ParentesisC tk_Linea {: 
+                Nodo tmp = new Nodo("LLAMADAFUNCION");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                nd1.addHijo((Nodo)ids);
+
+                RESULT = tmp;
+               :}
+            | tk_Identificador:i tk_ParentesisA IDENTIFICADORES:ids IDENTIFICADORESUB:idsub tk_Linea {: 
+                Nodo tmp = new Nodo("LLAMADAFUNCION");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                nd1.addHijo((Nodo)ids);
+                nd1.addHijo((Nodo)idsub);
+                RESULT = tmp;
+               :};
 
 CONSOLEWRITE ::= tk_cs tk_punto tk_writeline tk_ParentesisA tk_valorString tk_ParentesisC tk_Linea
                 | tk_cs tk_punto tk_writeline tk_ParentesisA tk_Identificador tk_ParentesisC tk_Linea;
