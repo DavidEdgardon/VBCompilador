@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -61,6 +62,7 @@ public class FrmMain extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         txtSintactico = new javax.swing.JTextArea();
         btnAnalizarSin = new javax.swing.JButton();
+        btnGraficar = new javax.swing.JButton();
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -140,6 +142,14 @@ public class FrmMain extends javax.swing.JFrame {
             }
         });
 
+        btnGraficar.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        btnGraficar.setText("Graficar AST");
+        btnGraficar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGraficarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -154,11 +164,12 @@ public class FrmMain extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 397, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabel2)
-                            .addComponent(btnAnalizarSin)
-                            .addComponent(btnAnalizar, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnArchivo, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(btnAnalizarSin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnAnalizar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnArchivo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnGraficar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 399, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -191,7 +202,9 @@ public class FrmMain extends javax.swing.JFrame {
                         .addGap(37, 37, 37)
                         .addComponent(btnAnalizar)
                         .addGap(37, 37, 37)
-                        .addComponent(btnAnalizarSin))
+                        .addComponent(btnAnalizarSin)
+                        .addGap(37, 37, 37)
+                        .addComponent(btnGraficar, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 538, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 538, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
@@ -211,14 +224,15 @@ public class FrmMain extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 12, Short.MAX_VALUE))
         );
 
         pack();
@@ -235,7 +249,7 @@ public class FrmMain extends javax.swing.JFrame {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(FrmMain.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         try {
             Reader lector = new BufferedReader(new FileReader("archivo.txt"));
             Lexer lexer = new Lexer(lector);
@@ -255,19 +269,25 @@ public class FrmMain extends javax.swing.JFrame {
                         resultado += lexer.lexeme + ":\t <Valor del string>\t\t " + tokens + "\n";
                         break;
                     case tk_Linea:
-                        resultado +=  "\t  <Salto de linea>\t\t" + tokens + "\n";
+                        resultado += "\t  <Salto de linea>\t\t" + tokens + "\n";
                         break;
                     case tk_dim:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Dim>\t" + tokens + "\n";
                         break;
                     case tk_as:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada As>\t" + tokens + "\n";
-                        break;    
-                    case tk_integer: case tk_byval: case tk_boolean: case tk_String:
+                        break;
+                    case tk_integer:
+                    case tk_byval:
+                    case tk_boolean:
+                    case tk_String:
                         resultado += lexer.lexeme + ":\t  <Es un Tipo de Dato>\t\t" + tokens + "\n";
                         break;
-                    case tk_if: case tk_else: case tk_step: case tk_main:
-                        resultado += lexer.lexeme +":\t  <Es una Palabra Reservada>\t\t" + tokens + "\n";
+                    case tk_if:
+                    case tk_else:
+                    case tk_step:
+                    case tk_main:
+                        resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada>\t\t" + tokens + "\n";
                         break;
                     case tk_do:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Do>\t\t" + tokens + "\n";
@@ -280,12 +300,12 @@ public class FrmMain extends javax.swing.JFrame {
                         break;
                     case tk_to:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada To>\t\t" + tokens + "\n";
-                        break; 
+                        break;
                     case tk_then:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Then>\t\t" + tokens + "\n";
                         break;
                     case tk_elseif:
-                        resultado += lexer.lexeme +":\t  <Es una Palabra Reservada ElseIf>\t\t" + tokens + "\n";
+                        resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada ElseIf>\t\t" + tokens + "\n";
                         break;
                     case tk_loop:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Loop>\t\t" + tokens + "\n";
@@ -303,7 +323,7 @@ public class FrmMain extends javax.swing.JFrame {
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Function>\t\t" + tokens + "\n";
                         break;
                     case tk_sub:
-                        resultado += lexer.lexeme +":\t <Es una Palabra Reservada Sub>\t\t" + tokens + "\n";
+                        resultado += lexer.lexeme + ":\t <Es una Palabra Reservada Sub>\t\t" + tokens + "\n";
                         break;
                     case tk_exit:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Exit>\t\t" + tokens + "\n";
@@ -316,12 +336,12 @@ public class FrmMain extends javax.swing.JFrame {
                         break;
                     case tk_write:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Write>\t\t" + tokens + "\n";
-                        break;  
+                        break;
                     case tk_readline:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Readline>\t\t" + tokens + "\n";
                         break;
                     case tk_and:
-                        resultado += lexer.lexeme +":\t  <Es una Palabra Reservada And>\t\t" + tokens + "\n";
+                        resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada And>\t\t" + tokens + "\n";
                         break;
                     case tk_or:
                         resultado += lexer.lexeme + ":\t <Es una Palabra Reservada Or>\t\t" + tokens + "\n";
@@ -346,14 +366,15 @@ public class FrmMain extends javax.swing.JFrame {
                         break;
                     case tk_module:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Module>\t\t" + tokens + "\n";
-                        break;    
+                        break;
                     case tk_writeline:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada WriteLine>\t\t" + tokens + "\n";
                         break;
                     case tk_like:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada Like>\t\t" + tokens + "\n";
-                        break;    
-                    case tk_null: case tk_mod:
+                        break;
+                    case tk_null:
+                    case tk_mod:
                         resultado += lexer.lexeme + ":\t  <Es una Palabra Reservada >\t\t" + tokens + "\n";
                         break;
                     case tk_punto:
@@ -361,17 +382,27 @@ public class FrmMain extends javax.swing.JFrame {
                         break;
                     case tk_ampersant:
                         resultado += lexer.lexeme + ":\t  <Signo reservado>\t\t" + tokens + "\n";
-                        break; 
-                    case tk_Suma: case tk_Resta: case tk_Multiplicacion: case tk_Division: case tk_Signomod: case tk_Potencia:
+                        break;
+                    case tk_Suma:
+                    case tk_Resta:
+                    case tk_Multiplicacion:
+                    case tk_Division:
+                    case tk_Signomod:
+                    case tk_Potencia:
                         resultado += lexer.lexeme + ":\t  <Es una Operador aritmetico>\t\t" + tokens + "\n";
                         break;
-                    case tk_Coma: case tk_Igual:
+                    case tk_Coma:
+                    case tk_Igual:
                         resultado += lexer.lexeme + ":\t  <Signo reservado>\t\t" + tokens + "\n";
-                        break;       
-                    case tk_mayorque: case tk_mayorigual: case tk_menorque: case tk_menorigual:
+                        break;
+                    case tk_mayorque:
+                    case tk_mayorigual:
+                    case tk_menorque:
+                    case tk_menorigual:
                         resultado += lexer.lexeme + ":\t <Es una Operador Relacional>\t\t" + tokens + "\n";
-                        break; 
-                    case tk_true: case tk_false:
+                        break;
+                    case tk_true:
+                    case tk_false:
                         resultado += lexer.lexeme + ":\t  <Es una valor booleano>\t\t" + tokens + "\n";
                         break;
                     case tk_ParentesisA:
@@ -379,13 +410,13 @@ public class FrmMain extends javax.swing.JFrame {
                         break;
                     case tk_ParentesisC:
                         resultado += lexer.lexeme + ":\t  <Es un parentesis Cerrado>\t\t" + tokens + "\n";
-                        break; 
+                        break;
                     case tk_Identificador:
                         resultado += lexer.lexeme + ":\t  <Es un identificador>\t\t" + tokens + "\n";
                         break;
                     case tk_Numero:
                         resultado += lexer.lexeme + ":\t  <Es un numero>\t\t" + tokens + "\n";
-                        break;  
+                        break;
                     default:
                         resultado += "Token: " + tokens + "\n";
                         break;
@@ -400,34 +431,34 @@ public class FrmMain extends javax.swing.JFrame {
 
     private void btnArchivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnArchivoActionPerformed
         // TODO add your handling code here:
-   try{
-                    String Ruta="";
-                    JFileChooser chooser = new JFileChooser();
-                    FileNameExtensionFilter filter = new FileNameExtensionFilter("Notepads", "txt");
-                    chooser.setFileFilter(filter);
-                    int returnVal = chooser.showOpenDialog(chooser);
-                    if(returnVal == JFileChooser.APPROVE_OPTION) {
-                        Ruta= chooser.getSelectedFile().getAbsolutePath();
-                    }
-                    String cadena;
-                    FileReader entrada = new FileReader(Ruta);
-                    BufferedReader b = new BufferedReader(entrada); 
-                    String codigoTexto = "";
-                    while((cadena = b.readLine())!=null) {
-                        codigoTexto += cadena + '\n';
-                    }
-                    txtEntrada.setText(codigoTexto);
-                    b.close();
-                }catch(Exception e){
-                    System.out.println("No se encontro el archivo");
-                }
+        try {
+            String Ruta = "";
+            JFileChooser chooser = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("Notepads", "txt");
+            chooser.setFileFilter(filter);
+            int returnVal = chooser.showOpenDialog(chooser);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                Ruta = chooser.getSelectedFile().getAbsolutePath();
+            }
+            String cadena;
+            FileReader entrada = new FileReader(Ruta);
+            BufferedReader b = new BufferedReader(entrada);
+            String codigoTexto = "";
+            while ((cadena = b.readLine()) != null) {
+                codigoTexto += cadena + '\n';
+            }
+            txtEntrada.setText(codigoTexto);
+            b.close();
+        } catch (Exception e) {
+            System.out.println("No se encontro el archivo");
+        }
     }//GEN-LAST:event_btnArchivoActionPerformed
 
     private void btnAnalizarSinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarSinActionPerformed
         // TODO add your handling code here:
         String ST = txtEntrada.getText();
         Gramatica s = new Gramatica(new analizadores.lexercup(new StringReader(ST)));
-        
+
         try {
             s.parse();
             txtSintactico.setText("SINTAXIS CORRECTA");
@@ -435,26 +466,76 @@ public class FrmMain extends javax.swing.JFrame {
             ArrayList<String> symRecover = s.getSintax();
             System.out.println(symRecover);
             System.out.println("-----------");
-            
-            
-            if(!symRecover.toString().equals("[]")){
+
+            if (!symRecover.toString().equals("[]")) {
                 txtSintactico.setText(symRecover.toString());
                 txtSintactico.setForeground(Color.RED);
             }
-            
-           String symError = s.getS();
-           if(!symError.equals("")){
-               txtSintactico.setText(symError);
-               txtSintactico.setForeground(Color.red);
-           } 
+
+            String symError = s.getS();
+            if (!symError.equals("")) {
+                txtSintactico.setText(symError);
+                txtSintactico.setForeground(Color.red);
+            }
         } catch (Exception ex) {
-           String symError = s.getS();
-           txtSintactico.setText(symError);
-           txtSintactico.setForeground(Color.red);
-           txtSintactico.setBackground(Color.black);
+            String symError = s.getS();
+            txtSintactico.setText(symError);
+            txtSintactico.setForeground(Color.red);
+            txtSintactico.setBackground(Color.black);
         }
-       
+
     }//GEN-LAST:event_btnAnalizarSinActionPerformed
+
+    private void btnGraficarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGraficarActionPerformed
+        // TODO add your handling code here:
+        String ST = txtEntrada.getText();
+        Gramatica s = new Gramatica(new analizadores.lexercup(new StringReader(ST)));
+
+        try {
+            s.parse();
+            if (s != null) {
+                if (s.padre != null) {         
+                    graficar(s.padre);
+                    System.out.println("Se ha graficado con exito");
+                }
+            }
+        } catch (Exception ex) {
+            System.out.println("No se puede graficar!!!");
+
+        }
+    }//GEN-LAST:event_btnGraficarActionPerformed
+
+    public void graficar(Nodo raiz) {
+        FileWriter archivo;
+        PrintWriter pw;
+        String cadena = graficarNodo(raiz);
+        try {
+            archivo = new FileWriter("arbol.dot");
+            pw = new PrintWriter(archivo);
+            pw.println("digraph G {node[shape=oval, style=filled, color=lightgreen]; edge[color=black];rankdir=UD \n");
+            pw.println(cadena);
+            pw.println("\n}");
+            archivo.close();
+        } catch (Exception e) {
+            System.out.println(e + " 1");
+        }
+
+        try {
+            String cmd = "dot -Tpng arbol.dot -o arbol.png";
+            Runtime.getRuntime().exec(cmd);
+        } catch (IOException ioe) {
+
+        }
+
+    }
+    public String graficarNodo(Nodo nodo) {
+        String cadena = "";
+        for (Nodo hijos : nodo.getHijos()) {
+            cadena += "\"" + nodo.getNumNodo() + "_" + nodo.getNombre() + " -> " + nodo.getValor() + "\"->\"" + hijos.getNumNodo() + "_" + hijos.getNombre() + " -> " + hijos.getValor() + "\"\n";
+            cadena += graficarNodo(hijos);
+        }
+        return cadena;
+    }
 
     /**
      * @param args the command line arguments
@@ -495,6 +576,7 @@ public class FrmMain extends javax.swing.JFrame {
     private javax.swing.JButton btnAnalizar;
     private javax.swing.JButton btnAnalizarSin;
     private javax.swing.JButton btnArchivo;
+    private javax.swing.JButton btnGraficar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

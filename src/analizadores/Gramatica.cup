@@ -9,6 +9,11 @@ parser code
     private Symbol cur_token;
     String unrecovered = "";
     String errorSintax = "";
+
+    public String resultado="";
+    public Nodo padre;
+    public int contador = 1;
+
     ArrayList<String> listaRecover = new ArrayList<String>();
 
     @Override
@@ -28,8 +33,6 @@ parser code
     public String getS(){
         return unrecovered;
 }
-
-
 :};
 
 /* Terminales */
@@ -72,7 +75,7 @@ terminal String tk_valorString;
 terminal String tk_Identificador;
 terminal Integer tk_Numero;
 
-non terminal INICIO, OPCPROCESO , PARAMETROS,VARIABLE ,ASIGNACIONVAL, CONSOLEWRITE, TIPOD, OPCBOOL, CUERPOFUNC, CUERPOPRO,
+non terminal OPCPROCESO , PARAMETROS,VARIABLE ,ASIGNACIONVAL, CONSOLEWRITE, TIPOD, OPCBOOL, CUERPOFUNC, CUERPOPRO,
              CUERPOSTRUC,SINTAXIF,INIF,INELSE,INELSEIF,SINTAXELSEIF, CONDICION, SINTAXFOR,OPCRELACIONALES, AUMDEC, SINTAXWHILE,
              iDNUM, VALOR,VARIABLESTRUC,LLAMADAFUNC, IDENTIFICADORES, IDENTIFICADORESPRIMA, OPERACIONES, OPEARITMETICA, 
              IDENTIFICADORESUB, INFOR, INWHILE, OPERACIONAUX,MAIN,ENDMODULE,ENDSUB,ENDSTRUCT,ENDFUNC,OPCPROCESOAUX,MODULE,
@@ -88,44 +91,76 @@ precedence left tk_Signomod;
 precedence left tk_Multiplicacion,tk_Division;
 precedence right tk_Potencia;
 
-start with INICIO;
+start with MODULE;
        
-INICIO ::= MODULE;
-
-MODULE ::= tk_public tk_module tk_Identificador tk_Linea OPCPROCESO
+MODULE ::=  tk_public tk_module tk_Identificador tk_Linea OPCPROCESO:inmod{:
+        Nodo tmp = new Nodo("INICIO");
+        tmp.setNumNodo(parser.contador++);
+        tmp.addHijo((Nodo)inmod);
+        parser.padre = (Nodo) tmp;
+        System.out.println("OK");
+        RESULT=tmp;
+:}
             | error tk_module tk_Identificador tk_Linea OPCPROCESO
             | tk_public error tk_Identificador tk_Linea OPCPROCESO
             | tk_public tk_module error tk_Linea OPCPROCESO
             | COMENTARIO OPCPROCESO
             | error tk_Linea OPCPROCESO;
 
-COMENTARIO ::= tk_comentario tk_Linea;
+COMENTARIO ::= tk_true;
 
-FUNC ::= tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC
+FUNC ::= tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS:param tk_as TIPOD tk_Linea CUERPOFUNC:infunc {: 
+            Nodo tmp = new Nodo("FUNCION");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)param);
+            tmp.addHijo((Nodo)infunc);
+            RESULT=tmp;
+        :}
         | error tk_function tk_Identificador tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC 
         | tk_public error tk_Identificador tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC
         | tk_public tk_function error tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC
         | tk_public tk_function tk_Identificador error PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC
         | tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS error TIPOD tk_Linea CUERPOFUNC;
 
-STRUCT ::= tk_public tk_structure tk_Identificador tk_Linea CUERPOSTRUC
+STRUCT ::= tk_public tk_structure tk_Identificador tk_Linea CUERPOSTRUC:instruct {:
+            Nodo tmp = new Nodo("STRUCT");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)instruct);
+            RESULT=tmp;
+        :}
         | error tk_structure tk_Identificador tk_Linea CUERPOSTRUC
         | tk_public error tk_Identificador tk_Linea CUERPOSTRUC
         | tk_public tk_structure error tk_Linea CUERPOSTRUC;
 
-SUBPROCESS ::= tk_public tk_sub tk_Identificador tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO
+SUBPROCESS ::= tk_public tk_sub tk_Identificador tk_ParentesisA PARAMETROS:param tk_Linea CUERPOPRO:inpro{:
+            Nodo tmp = new Nodo("SUBPROCESS");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)param);
+            tmp.addHijo((Nodo)inpro);
+            RESULT=tmp;
+            :}
             | error tk_sub tk_Identificador tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO
             | tk_public error tk_Identificador tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO
             | tk_public tk_sub error tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO
             | tk_public tk_sub tk_Identificador error PARAMETROS tk_Linea CUERPOPRO;
 
-MAIN ::= tk_sub tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO
+MAIN ::= tk_sub tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO:inmain {:
+            Nodo tmp = new Nodo("MAIN");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inmain);
+            RESULT=tmp;
+
+        :}
         | error tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO
         | tk_sub error tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO
         | tk_sub tk_main error tk_ParentesisC tk_Linea CUERPOPRO
         | tk_sub tk_main tk_ParentesisA error tk_Linea CUERPOPRO;
 
-ENDMODULE ::= tk_end tk_module tk_Linea
+ENDMODULE ::= tk_end tk_module tk_Linea {: 
+         Nodo tmp = new Nodo("ENDMODULE");
+         tmp.setNumNodo(parser.contador++);
+         RESULT=tmp;
+        :}
             | error tk_module tk_Linea
             | tk_end error tk_Linea;
 
@@ -137,20 +172,53 @@ ENDSTRUCT ::= tk_end tk_structure tk_Linea
         | error tk_structure tk_Linea
         | tk_end error tk_Linea;
 
-ENDSUB ::= tk_end tk_sub tk_Linea
+ENDSUB ::= tk_end tk_sub tk_Linea {: 
+         Nodo tmp = new Nodo("ENDSUB");
+         tmp.setNumNodo(parser.contador++);
+         RESULT=tmp;
+
+        :}
         | error tk_sub tk_Linea
         | tk_end error tk_Linea;
 
-OPCPROCESO ::= FUNC OPCPROCESO 
-            | STRUCT OPCPROCESO
-            | SUBPROCESS OPCPROCESO
-            | MAIN 
+OPCPROCESO ::= FUNC:func OPCPROCESO:inmod {:
+            Nodo tmp = new Nodo("MODULE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)func);
+            tmp.addHijo((Nodo)inmod);
+            RESULT=tmp;
+             :}
+            | STRUCT:strt OPCPROCESO:inmod {:
+            Nodo tmp = new Nodo("MODULE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)strt);
+            tmp.addHijo((Nodo)inmod);
+            RESULT=tmp;
+             :}
+            | SUBPROCESS:subpro OPCPROCESO:inmod{:
+            Nodo tmp = new Nodo("MODULE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)subpro);
+            tmp.addHijo((Nodo)inmod);
+            RESULT=tmp;
+             :}
+            | MAIN:main {:
+            Nodo tmp = new Nodo("MODULE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)main);
+            RESULT=tmp;
+             :}
             | error tk_Linea OPCPROCESO;
 
 OPCPROCESOAUX ::= FUNC OPCPROCESOAUX 
             | STRUCT OPCPROCESOAUX
             | SUBPROCESS OPCPROCESOAUX
-            | ENDMODULE 
+            | ENDMODULE:endm {: 
+            Nodo tmp = new Nodo("INMODULE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)endm);
+            RESULT=tmp;
+            :}
             | error tk_Linea OPCPROCESOAUX;
 
 CUERPOSTRUC ::= VARIABLESTRUC CUERPOSTRUC
@@ -306,7 +374,13 @@ CUERPOPRO ::= SINTAXFOR CUERPOPRO
         | OPERACIONES CUERPOPRO   
         | SINTAXWHILE CUERPOPRO
         | COMENTARIO CUERPOPRO
-        | ENDSUB OPCPROCESOAUX
+        | ENDSUB:ends OPCPROCESOAUX:inmod {:
+            Nodo tmp = new Nodo("INMAIN");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ends);
+            tmp.addHijo((Nodo)inmod);
+            RESULT=tmp;
+        :}
         | error tk_Linea CUERPOPRO;   
 
 PARAMETROS ::= tk_byval tk_Identificador tk_as TIPOD PARAMETROS 

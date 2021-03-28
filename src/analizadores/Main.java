@@ -17,9 +17,9 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
-        String ruta1 = "C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Lexer.flex";
-        String ruta2 = "C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/lexercup.flex";
-        String[] rutaS = {"-parser", "Gramatica", "C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Gramatica.cup"};
+        String ruta1 = "C:/VBCompilador/src/analizadores/lexer.flex";
+        String ruta2 = "C:/VBCompilador/src/analizadores/lexercup.flex";
+        String[] rutaS = {"-parser", "Gramatica", "C:/VBCompilador/src/analizadores/Gramatica.cup"};
         generar(ruta1, ruta2, rutaS);
     }
 
@@ -31,21 +31,21 @@ public class Main {
         JFlex.Main.generate(archivo);
         java_cup.Main.main(rutaS);
 
-        Path rutaSym = Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/sym.java");
+        Path rutaSym = Paths.get("C:/VBCompilador/src/analizadores/sym.java");
         if (Files.exists(rutaSym)) {
             Files.delete(rutaSym);
         }
         Files.move(
-                Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/sym.java"),
-                Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/sym.java")
+                Paths.get("C:/VBCompilador/sym.java"),
+                Paths.get("C:/VBCompilador/src/analizadores/sym.java")
         );
-        Path rutaSin = Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Gramatica.java");
+        Path rutaSin = Paths.get("C:/VBCompilador/src/analizadores/Gramatica.java");
         if (Files.exists(rutaSin)) {
             Files.delete(rutaSin);
         }
         Files.move(
-                Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/Gramatica.java"),
-                Paths.get("C:/Users/David/Documents/NetBeansProjects/VBCompilador/src/analizadores/Gramatica.java")
+                Paths.get("C:/VBCompilador/Gramatica.java"),
+                Paths.get("C:/VBCompilador/src/analizadores/Gramatica.java")
         );
     }
 }
