@@ -77,8 +77,8 @@ terminal String tk_Numero;
 
 non terminal OPCPROCESO , PARAMETROS,VARIABLE ,ASIGNACIONVAL, CONSOLEWRITE, TIPOD, OPCBOOL, CUERPOFUNC, CUERPOPRO,
              CUERPOSTRUC,SINTAXIF,INIF,INELSE,INELSEIF,SINTAXELSEIF, CONDICION, SINTAXFOR,OPCRELACIONALES, AUMDEC, SINTAXWHILE,
-             iDNUM, VALOR,VARIABLESTRUC,LLAMADAFUNC, IDENTIFICADORES, OPERACIONES, OPEARITMETICA, 
-             IDENTIFICADORESUB, INFOR, INWHILE, OPERACIONAUX,MAIN,ENDMODULE,ENDSUB,ENDSTRUCT,ENDFUNC,OPCPROCESOAUX,MODULE,
+             iDNUM, VALOR,VARIABLESTRUC,LLAMADAFUNC, IDENTIFICADORES, OPERACIONES, OPEARITMETICA, CUERPOMAIN, //OPCPROCESOAUX
+             IDENTIFICADORESUB, INFOR, INWHILE, OPERACIONAUX,MAIN,ENDMODULE,ENDSUB,ENDSTRUCT,ENDFUNC,MODULE,
              SINTAXIF_WHILE, INIF_WHILE, INELSE_WHILE, INELSEIF_WHILE, SINTAXELSEIF_WHILE,INFOR_WHILE, SINTAXFOR_WHILE,
              SINTAXWHILE_FOR,INWHILE_FOR, SINTAXIF_FOR, SINTAXELSEIF_FOR, INIF_FOR, INELSEIF_FOR, INELSE_FOR,FUNC,STRUCT,SUBPROCESS,
              SINTAXWHILE_FUNC, INWHILE_FUNC, SINTAXIF_FUNC, SINTAXELSEIF_FUNC, INIF_FUNC, INELSEIF_FUNC, INELSE_FUNC,INFOR_FUNC,
@@ -93,32 +93,33 @@ precedence right tk_Potencia;
 
 start with MODULE;
        
-MODULE ::=  tk_public tk_module tk_Identificador tk_Linea OPCPROCESO:inmod{:
-                Nodo tmp = new Nodo("INICIO");
+MODULE ::=  tk_public tk_module tk_Identificador tk_Linea OPCPROCESO:inmod ENDMODULE:end {:
+                Nodo tmp = new Nodo("MODULE");
                 tmp.setNumNodo(parser.contador++);
                 tmp.addHijo((Nodo)inmod);
+                tmp.addHijo((Nodo)end);
                 parser.padre = (Nodo) tmp;
                 System.out.println("OK");
                 RESULT=tmp;
             :}
-            | error tk_module tk_Identificador tk_Linea OPCPROCESO
-            | tk_public error tk_Identificador tk_Linea OPCPROCESO
-            | tk_public tk_module error tk_Linea OPCPROCESO    
+            | error tk_module tk_Identificador tk_Linea OPCPROCESO ENDMODULE
+            | tk_public error tk_Identificador tk_Linea OPCPROCESO ENDMODULE
+            | tk_public tk_module error tk_Linea OPCPROCESO ENDMODULE   
             | error tk_Linea OPCPROCESO;
 
 
-FUNC ::= tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS:param tk_as TIPOD tk_Linea CUERPOFUNC:infunc {: 
+FUNC ::= tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS:param tk_ParentesisC tk_as TIPOD tk_Linea CUERPOFUNC:infunc {: 
             Nodo tmp = new Nodo("FUNCION");
             tmp.setNumNodo(parser.contador++);
             tmp.addHijo((Nodo)param);
             tmp.addHijo((Nodo)infunc);
             RESULT=tmp;
         :}
-        | error tk_function tk_Identificador tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC 
-        | tk_public error tk_Identificador tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC
-        | tk_public tk_function error tk_ParentesisA PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC
-        | tk_public tk_function tk_Identificador error PARAMETROS tk_as TIPOD tk_Linea CUERPOFUNC
-        | tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS error TIPOD tk_Linea CUERPOFUNC;
+        | error tk_function tk_Identificador tk_ParentesisA PARAMETROS tk_ParentesisC tk_as TIPOD tk_Linea CUERPOFUNC 
+        | tk_public error tk_Identificador tk_ParentesisA PARAMETROS  tk_ParentesisC tk_as TIPOD tk_Linea CUERPOFUNC
+        | tk_public tk_function error tk_ParentesisA PARAMETROS tk_as tk_ParentesisC TIPOD tk_Linea CUERPOFUNC
+        | tk_public tk_function tk_Identificador error PARAMETROS tk_as tk_ParentesisC TIPOD tk_Linea CUERPOFUNC
+        | tk_public tk_function tk_Identificador tk_ParentesisA PARAMETROS tk_ParentesisC error TIPOD tk_Linea CUERPOFUNC;
 
 STRUCT ::= tk_public tk_structure tk_Identificador tk_Linea CUERPOSTRUC:instruct {:
             Nodo tmp = new Nodo("STRUCT");
@@ -142,17 +143,17 @@ SUBPROCESS ::= tk_public tk_sub tk_Identificador tk_ParentesisA PARAMETROS:param
             | tk_public tk_sub error tk_ParentesisA PARAMETROS tk_Linea CUERPOPRO
             | tk_public tk_sub tk_Identificador error PARAMETROS tk_Linea CUERPOPRO;
 
-MAIN ::= tk_sub tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO:inmain {:
+MAIN ::= tk_sub tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOMAIN:inmain {:
             Nodo tmp = new Nodo("MAIN");
             tmp.setNumNodo(parser.contador++);
             tmp.addHijo((Nodo)inmain);
             RESULT=tmp;
 
         :}
-        | error tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO
-        | tk_sub error tk_ParentesisA tk_ParentesisC tk_Linea CUERPOPRO
-        | tk_sub tk_main error tk_ParentesisC tk_Linea CUERPOPRO
-        | tk_sub tk_main tk_ParentesisA error tk_Linea CUERPOPRO;
+        | error tk_main tk_ParentesisA tk_ParentesisC tk_Linea CUERPOMAIN
+        | tk_sub error tk_ParentesisA tk_ParentesisC tk_Linea CUERPOMAIN
+        | tk_sub tk_main error tk_ParentesisC tk_Linea CUERPOMAIN
+        | tk_sub tk_main tk_ParentesisA error tk_Linea CUERPOMAIN;
 
 ENDMODULE ::= tk_end tk_module tk_Linea {: 
          Nodo tmp = new Nodo("ENDMODULE");
@@ -226,10 +227,28 @@ OPCPROCESO ::= FUNC:func OPCPROCESO:inmod {:
                 RESULT=tmp;
              :}
             | error tk_Linea OPCPROCESO;
-
-OPCPROCESOAUX ::= FUNC OPCPROCESOAUX 
-            | STRUCT OPCPROCESOAUX
-            | SUBPROCESS OPCPROCESOAUX
+/*
+OPCPROCESOAUX ::= FUNC:func OPCPROCESOAUX:opcaux {:
+                Nodo tmp = new Nodo("INMODULE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)func);
+                tmp.addHijo((Nodo)opcaux);
+                RESULT=tmp;
+             :}
+            | STRUCT:struct OPCPROCESOAUX:opcaux{:
+                Nodo tmp = new Nodo("INMODULE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)struct);
+                tmp.addHijo((Nodo)opcaux);
+                RESULT=tmp;
+             :}
+            | SUBPROCESS:subpro OPCPROCESOAUX:opcaux{:
+                Nodo tmp = new Nodo("INMODULE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)subpro);
+                tmp.addHijo((Nodo)opcaux);
+                RESULT=tmp;
+             :}
             | ENDMODULE:endm {: 
                 Nodo tmp = new Nodo("INMODULE");
                 tmp.setNumNodo(parser.contador++);
@@ -237,6 +256,7 @@ OPCPROCESOAUX ::= FUNC OPCPROCESOAUX
                 RESULT=tmp;
             :}
             | error tk_Linea OPCPROCESOAUX;
+*/
 
 CUERPOSTRUC ::= VARIABLESTRUC:varstr CUERPOSTRUC:instruct {: 
                 Nodo tmp = new Nodo("INSTRUCT");
@@ -300,72 +320,85 @@ VARIABLESTRUC ::= tk_Identificador:i tk_as TIPOD:tipod tk_Linea {:
                     RESULT = tmp;
             :};
 
-CUERPOFUNC ::= SINTAXFOR_FUNC:forfun CUERPOFUNC:cuerpo {:
-                Nodo tmp = new Nodo("FOR");
+CUERPOFUNC ::= SINTAXFOR_FUNC:forfun CUERPOFUNC:infunc {:
+                Nodo tmp = new Nodo("INFUNCTION");
                 tmp.setNumNodo(parser.contador++);
                 tmp.addHijo((Nodo)forfun);
-                tmp.addHijo((Nodo)cuerpo);
+                tmp.addHijo((Nodo)infunc);
                 RESULT=tmp;
             :}
-            | SINTAXWHILE_FUNC:whilefn CUERPOFUNC:cuerpo {:
-                Nodo tmp = new Nodo("while");
+            | SINTAXWHILE_FUNC:whilefn CUERPOFUNC:infunc {:
+                Nodo tmp = new Nodo("INFUNCTION");
                 tmp.setNumNodo(parser.contador++);
                 tmp.addHijo((Nodo)whilefn);
-                tmp.addHijo((Nodo)cuerpo);
+                tmp.addHijo((Nodo)infunc);
                 RESULT=tmp;
             :}
-            | SINTAXIF_FUNC:iffn CUERPOFUNC:cuerpo {:
+            | SINTAXIF_FUNC:iffn CUERPOFUNC:infunc {:
                 Nodo tmp = new Nodo("INFUNCTION");
                 tmp.setNumNodo(parser.contador++);
                 tmp.addHijo((Nodo)iffn);
-                tmp.addHijo((Nodo)cuerpo);
+                tmp.addHijo((Nodo)infunc);
                 RESULT=tmp;
             :}
-            | VARIABLE:varfn CUERPOFUNC:cuerpo {:
-                Nodo tmp = new Nodo("VARIABLE");
+            | VARIABLE:varfn CUERPOFUNC:infunc {:
+                Nodo tmp = new Nodo("INFUNCTION");
                 tmp.setNumNodo(parser.contador++);
                 tmp.addHijo((Nodo)varfn);
-                tmp.addHijo((Nodo)cuerpo);
+                tmp.addHijo((Nodo)infunc);
                 RESULT=tmp;
             :}
-            | LLAMADAFUNC:fun CUERPOFUNC:cuerpo{:
-                Nodo tmp = new Nodo("llamada funcion");
+            | LLAMADAFUNC:llamfun CUERPOFUNC:infunc{:
+                Nodo tmp = new Nodo("INFUNCTION");
                 tmp.setNumNodo(parser.contador++);
-                tmp.addHijo((Nodo)fun);
-                tmp.addHijo((Nodo)cuerpo);
+                tmp.addHijo((Nodo)llamfun);
+                tmp.addHijo((Nodo)infunc);
                 RESULT=tmp;
             :}
-            | ASIGNACIONVAL:asing CUERPOFUNC:cuerpo{:
-                Nodo tmp = new Nodo("ASIGNACION");
+            | ASIGNACIONVAL:asing CUERPOFUNC:infunc{:
+                Nodo tmp = new Nodo("INFUNCTION");
                 tmp.setNumNodo(parser.contador++);
                 tmp.addHijo((Nodo)asing);
-                tmp.addHijo((Nodo)cuerpo);
+                tmp.addHijo((Nodo)infunc);
                 RESULT=tmp;
             :}
-            | CONSOLEWRITE CUERPOFUNC {: 
-            
+            | CONSOLEWRITE:cs CUERPOFUNC:infunc{: 
+                Nodo tmp = new Nodo("INFUNCTION");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)cs);
+                tmp.addHijo((Nodo)infunc);
+                RESULT=tmp;
             :}
-            | OPERACIONES:op CUERPOFUNC:cuerpo{:
-                Nodo tmp = new Nodo("ASIGNACION");
+            | OPERACIONES:op CUERPOFUNC:infunc{:
+                Nodo tmp = new Nodo("INFUNCTION");
                 tmp.setNumNodo(parser.contador++);
                 tmp.addHijo((Nodo)op);
-                tmp.addHijo((Nodo)cuerpo);
+                tmp.addHijo((Nodo)infunc);
                 RESULT=tmp;
             :}
-            | tk_comentario tk_Linea CUERPOFUNC {:
-
-            :}
-            | ENDFUNC{:
-                Nodo tmp = new Nodo("END FUNC");
+            | tk_comentario:com tk_Linea CUERPOFUNC:infunc {: 
+                Nodo tmp = new Nodo("INFUNCTION");
                 tmp.setNumNodo(parser.contador++);
-                 RESULT=tmp;
+
+                Nodo nd1 = new Nodo("Comentario");
+                nd1.setValor(com.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                tmp.addHijo((Nodo)infunc);
+                RESULT=tmp;
+            :}
+            | ENDFUNC:endf{:
+                Nodo tmp = new Nodo("INFUNCTION");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)endf);
+                RESULT=tmp;
             :}
             | error tk_Linea CUERPOFUNC;
 
 SINTAXIF_FUNC ::= tk_if CONDICION:con tk_then tk_Linea INIF_FUNC:inif tk_end:endif tk_if tk_Linea{:
             Nodo tmp = new Nodo("IF");
             tmp.setNumNodo(parser.contador++);
-            
 
             Nodo nd1 = new Nodo("End if");
             nd1.setNumNodo(parser.contador++);
@@ -376,156 +409,1059 @@ SINTAXIF_FUNC ::= tk_if CONDICION:con tk_then tk_Linea INIF_FUNC:inif tk_end:end
             RESULT=tmp;
         :};
 
-SINTAXELSEIF_FUNC::= CONDICION tk_then tk_Linea INELSEIF_FUNC;
+SINTAXELSEIF_FUNC::= CONDICION:con tk_then tk_Linea INELSEIF_FUNC:elsef{:
+            Nodo tmp = new Nodo("ELSE IF");
+            tmp.setNumNodo(parser.contador++);
 
-INIF_FUNC ::= SINTAXIF_FUNC INIF_FUNC
-         | VARIABLE INIF_FUNC
-         | LLAMADAFUNC INIF_FUNC
-         | ASIGNACIONVAL INIF_FUNC
-         | OPERACIONES INIF_FUNC
-         | CONSOLEWRITE INIF_FUNC
-         | SINTAXFOR_FUNC INIF_FUNC 
-         | SINTAXWHILE_FUNC INIF_FUNC
-         | tk_comentario tk_Linea INIF_FUNC
-         | tk_comentario tk_Linea 
-         | SINTAXIF_FUNC
-         | VARIABLE
-         | LLAMADAFUNC
-         | ASIGNACIONVAL
-         | CONSOLEWRITE
-         | OPERACIONES
-         | SINTAXFOR_FUNC
+            Nodo nd1 = new Nodo("End if");
+            nd1.setNumNodo(parser.contador++);
+            
+            tmp.addHijo((Nodo)con);
+            tmp.addHijo((Nodo)elsef);
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+        :};
+
+INIF_FUNC ::= SINTAXIF_FUNC:sxiffunc INIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffunc);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+         | VARIABLE:var INIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+         | LLAMADAFUNC:llamfunc INIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)llamfunc);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+         | ASIGNACIONVAL:asigval INIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)asigval);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+         | OPERACIONES:oper INIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)oper);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+         | CONSOLEWRITE:cs INIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+         | SINTAXFOR_FUNC:fr INIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)fr);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+         | SINTAXWHILE_FUNC INIF_FUNC:inifunc
+         | tk_comentario:com tk_Linea INIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+            :}
+         | tk_comentario:com tk_Linea {:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+         | SINTAXIF_FUNC:sxiffunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffunc);
+            RESULT=tmp;
+          :}
+         | VARIABLE:var{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            RESULT=tmp;
+          :}
+         | LLAMADAFUNC:llamfunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)llamfunc);
+            RESULT=tmp;
+          :}
+         | ASIGNACIONVAL:asigval{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)asigval);
+            RESULT=tmp;
+          :}
+         | CONSOLEWRITE:cs{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            RESULT=tmp;
+          :}
+         | OPERACIONES:oper{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)oper);
+            RESULT=tmp;
+          :}
+         | SINTAXFOR_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
          | SINTAXWHILE_FUNC
-         | tk_exit tk_function tk_Linea
-         | tk_else tk_Linea INELSE_FUNC
-         | tk_elseif SINTAXELSEIF_FUNC; 
+         | tk_exit:exit tk_function tk_Linea{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
 
-INELSE_FUNC ::= SINTAXIF_FUNC INELSE_FUNC
-           | VARIABLE INELSE_FUNC
-           | LLAMADAFUNC INELSE_FUNC
-           | ASIGNACIONVAL INELSE_FUNC 
-           | OPERACIONES INELSE_FUNC 
-           | CONSOLEWRITE INELSE_FUNC 
-           | SINTAXFOR_FUNC  INELSE_FUNC 
-           | SINTAXWHILE_FUNC  INELSE_FUNC 
-           | tk_comentario tk_Linea INELSE_FUNC
-           | tk_comentario tk_Linea
-           | SINTAXIF_FUNC 
-           | VARIABLE
-           | LLAMADAFUNC
-           | ASIGNACIONVAL
-           | CONSOLEWRITE
-           | OPERACIONES
-           | SINTAXFOR_FUNC 
-           | SINTAXWHILE_FUNC 
-           | tk_exit tk_function tk_Linea;
+            Nodo nd1 = new Nodo("Exit Function");
+            nd1.setValor(exit.toString());
+            nd1.setNumNodo(parser.contador++);
 
-INELSEIF_FUNC  ::=  SINTAXIF_FUNC INELSEIF_FUNC  
-               | VARIABLE INELSEIF_FUNC 
-               | LLAMADAFUNC INELSEIF_FUNC
-               | ASIGNACIONVAL INELSEIF_FUNC 
-               | tk_else tk_Linea INELSE_FUNC 
-               | tk_elseif  SINTAXELSEIF_FUNC
-               | OPERACIONES INELSEIF_FUNC 
-               | CONSOLEWRITE INELSEIF_FUNC 
-               | SINTAXFOR_FUNC INELSEIF_FUNC
-               | SINTAXWHILE_FUNC INELSEIF_FUNC
-               | tk_comentario tk_Linea INELSEIF_FUNC
-               | tk_comentario tk_Linea
-               | SINTAXIF_FUNC
-               | VARIABLE
-               | LLAMADAFUNC
-               | ASIGNACIONVAL
-               | CONSOLEWRITE
-               | OPERACIONES
-               | SINTAXFOR_FUNC
-               | SINTAXWHILE_FUNC
-               | tk_exit tk_function tk_Linea;
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+         | tk_else:el1 tk_Linea INELSE_FUNC:inifunc{:
+                    Nodo tmp = new Nodo("IN IF");
+                    tmp.setNumNodo(parser.contador++);
+                    Nodo nd1 = new Nodo("Else");
+                    nd1.setNumNodo(parser.contador++);
+                    tmp.addHijo(nd1);           
+                    nd1.addHijo((Nodo)inifunc);           
+                    RESULT=tmp;
+          :}   
+         | tk_elseif:eif SINTAXELSEIF_FUNC:inifunc{:
+                    Nodo tmp = new Nodo("IN IF");
+                    tmp.setNumNodo(parser.contador++);
+                    Nodo nd1 = new Nodo("ELSE IF");
+                    nd1.setNumNodo(parser.contador++);
+                    tmp.addHijo(nd1);           
+                    nd1.addHijo((Nodo)inifunc);           
+                    RESULT=tmp;
+          :};    
 
-SINTAXWHILE_FUNC ::= tk_do tk_while CONDICION tk_Linea INWHILE_FUNC tk_loop tk_Linea ;
+INELSE_FUNC ::= SINTAXIF_FUNC:sxiffunc INELSE_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffunc);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+           | VARIABLE:var INELSE_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+           | LLAMADAFUNC:llamada INELSE_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)llamada);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+           | ASIGNACIONVAL:asig INELSE_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)asig);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+           | OPERACIONES:ope INELSE_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ope);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+           | CONSOLEWRITE:cs INELSE_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+           | SINTAXFOR_FUNC:fr  INELSE_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE ");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)fr);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+           | SINTAXWHILE_FUNC:inw  INELSE_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE ");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inw);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}   
+           | tk_comentario:com tk_Linea INELSE_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE ");
+            tmp.setNumNodo(parser.contador++);
 
-INWHILE_FUNC ::= SINTAXFOR_FUNC INWHILE_FUNC
-        | SINTAXIF_FUNC INWHILE_FUNC
-        | VARIABLE INWHILE_FUNC
-        | LLAMADAFUNC INWHILE_FUNC
-        | ASIGNACIONVAL INWHILE_FUNC
-        | CONSOLEWRITE INWHILE_FUNC
-        | OPERACIONES INWHILE_FUNC
-        | SINTAXWHILE_FUNC INWHILE_FUNC
-        | tk_comentario tk_Linea INWHILE_FUNC
-        | tk_comentario tk_Linea
-        | SINTAXFOR_FUNC
-        | SINTAXIF_FUNC
-        | VARIABLE
-        | LLAMADAFUNC
-        | ASIGNACIONVAL
-        | CONSOLEWRITE
-        | OPERACIONES
-        | SINTAXWHILE_FUNC
-        | tk_exit tk_do tk_Linea
-        | tk_exit tk_function tk_Linea
-        | tk_exit tk_for tk_Linea;
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
 
-SINTAXFOR_FUNC ::= tk_for tk_Identificador tk_Igual iDNUM tk_to iDNUM tk_step AUMDEC tk_Linea INFOR_FUNC tk_next tk_Identificador tk_Linea
-            | tk_for tk_Identificador tk_Igual iDNUM tk_to OPERACIONES INFOR_FUNC tk_next tk_Identificador tk_Linea;
+            tmp.addHijo(nd1);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+            :}
+           | tk_comentario:com tk_Linea{:
+            Nodo tmp = new Nodo("IN ELSE ");
+            tmp.setNumNodo(parser.contador++);
 
-INFOR_FUNC ::= SINTAXWHILE_FUNC INFOR_FUNC 
-        | SINTAXFOR_FUNC INFOR_FUNC 
-        | SINTAXIF_FUNC INFOR_FUNC 
-        | VARIABLE INFOR_FUNC 
-        | LLAMADAFUNC INFOR_FUNC 
-        | ASIGNACIONVAL INFOR_FUNC 
-        | CONSOLEWRITE INFOR_FUNC 
-        | OPERACIONES INFOR_FUNC
-        | tk_comentario tk_Linea INFOR_FUNC
-        | tk_comentario tk_Linea
-        | SINTAXWHILE_FUNC
-        | SINTAXFOR_FUNC
-        | SINTAXIF_FUNC
-        | VARIABLE
-        | LLAMADAFUNC
-        | ASIGNACIONVAL
-        | CONSOLEWRITE
-        | OPERACIONES
-        | tk_exit tk_do tk_Linea
-        | tk_exit tk_function tk_Linea
-        | tk_exit tk_for tk_Linea;
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+           | SINTAXIF_FUNC:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} 
+           | VARIABLE:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} 
+           | LLAMADAFUNC:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} 
+           | ASIGNACIONVAL:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} 
+           | CONSOLEWRITE:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} 
+           | OPERACIONES:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} 
+           | SINTAXFOR_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE ");
+            tmp.setNumNodo(parser.contador++);
+            
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+           | SINTAXWHILE_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE ");
+            tmp.setNumNodo(parser.contador++);
+            
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}   
+           | tk_exit:exit tk_function tk_Linea{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Exit Function");
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :};
+
+INELSEIF_FUNC  ::=  SINTAXIF_FUNC:iif INELSEIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)iif);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+               | VARIABLE:var INELSEIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}   
+               | LLAMADAFUNC:llamada INELSEIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)llamada);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+               | ASIGNACIONVAL:asig INELSEIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)asig);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+               | tk_else:els tk_Linea INELSE_FUNC:inifunc{:
+                    Nodo tmp = new Nodo("IN ELSE IF");
+                    tmp.setNumNodo(parser.contador++);
+                    Nodo nd1 = new Nodo("ELSE");
+                    nd1.setNumNodo(parser.contador++);
+                    tmp.addHijo(nd1);           
+                    nd1.addHijo((Nodo)inifunc);           
+                    RESULT=tmp;
+          :}   
+               | tk_elseif:elsif  SINTAXELSEIF_FUNC:inifunc{:
+                    Nodo tmp = new Nodo("IN ELSE IF");
+                    tmp.setNumNodo(parser.contador++);
+                    Nodo nd1 = new Nodo("ELSE IF");
+                    nd1.setNumNodo(parser.contador++);
+                    tmp.addHijo(nd1);           
+                    nd1.addHijo((Nodo)inifunc);           
+                    RESULT=tmp;
+          :}   
+               | OPERACIONES:op INELSEIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)op);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}   
+               | CONSOLEWRITE:cs INELSEIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}   
+               | SINTAXFOR_FUNC:fr INELSEIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)fr);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+               | SINTAXWHILE_FUNC:inw INELSEIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inw);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+               | tk_comentario:com tk_Linea INELSEIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+            :}
+               | tk_comentario:com tk_Linea{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+               | SINTAXIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+               | VARIABLE:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+               | LLAMADAFUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+               | ASIGNACIONVAL:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+           
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+               | CONSOLEWRITE:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+          
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+               | OPERACIONES:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+               | SINTAXFOR_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+               | SINTAXWHILE_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+               | tk_exit tk_function tk_Linea{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Exit Function");
+            
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :};
+
+SINTAXWHILE_FUNC ::= tk_do tk_while CONDICION:con tk_Linea INWHILE_FUNC:inwhile tk_loop tk_Linea{:
+            Nodo tmp = new Nodo("WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Loop");
+            nd1.setNumNodo(parser.contador++);
+        
+            tmp.addHijo((Nodo)con);
+            tmp.addHijo((Nodo)inwhile);
+            tmp.addHijo(nd1);
+            RESULT=tmp;    
+        :};
+
+INWHILE_FUNC ::= SINTAXFOR_FUNC:forf INWHILE_FUNC:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)forf);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}  
+        | SINTAXIF_FUNC:iff INWHILE_FUNC:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)iff);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | VARIABLE:var INWHILE_FUNC:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | LLAMADAFUNC:llamada INWHILE_FUNC:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)llamada);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | ASIGNACIONVAL:asig INWHILE_FUNC:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)asig);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | CONSOLEWRITE:cs INWHILE_FUNC:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | OPERACIONES:op INWHILE_FUNC:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)op);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | SINTAXWHILE_FUNC:wr INWHILE_FUNC:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)wr);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | tk_comentario:com tk_Linea INWHILE_FUNC:inmain {: 
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            tmp.addHijo((Nodo)inmain);
+            RESULT=tmp;
+        :}
+        | tk_comentario:com tk_Linea{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+        | SINTAXFOR_FUNC:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+       
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | SINTAXIF_FUNC:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+       
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | VARIABLE:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+       
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | LLAMADAFUNC:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+       
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | ASIGNACIONVAL:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+       
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | CONSOLEWRITE:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+       
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | OPERACIONES:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+       
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | SINTAXWHILE_FUNC:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+       
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | tk_exit tk_do tk_Linea{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("EXIT DO");
+            
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+        | tk_exit tk_function tk_Linea{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("EXIT FUNCTION");
+            
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+        | tk_exit tk_for tk_Linea{:
+            Nodo tmp = new Nodo("IN FUNC WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("EXIT FOR");
+            
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :};
+ 
+            
+
+
+
+SINTAXFOR_FUNC ::= tk_for tk_Identificador:i tk_Igual iDNUM:idn tk_to iDNUM:idnn tk_step AUMDEC:aumdec tk_Linea INFOR_FUNC:infor tk_next tk_Identificador:ii tk_Linea{: 
+                    Nodo tmp = new Nodo("FOR");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Identificador");
+                    nd1.setValor(i.toString());
+                    nd1.setNumNodo(parser.contador++);
+                    
+                    Nodo nd2 = new Nodo("Identificador");
+                    nd2.setValor(ii.toString());
+                    nd2.setNumNodo(parser.contador++);
+                    
+
+                    tmp.addHijo(nd1);
+                    tmp.addHijo((Nodo)idn);
+                    tmp.addHijo((Nodo)idnn);
+                    tmp.addHijo((Nodo)aumdec);
+                    tmp.addHijo((Nodo)infor);
+                    tmp.addHijo(nd2);
+                    RESULT=tmp;
+            :}
+            | tk_for tk_Identificador:i tk_Igual iDNUM:idn tk_to OPERACIONES:oper INFOR_FUNC:infor tk_next tk_Identificador:ii tk_Linea{:
+                    Nodo tmp = new Nodo("FOR");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Identificador");
+                    nd1.setValor(i.toString());
+                    nd1.setNumNodo(parser.contador++);
+                    
+                    Nodo nd2 = new Nodo("Identificador");
+                    nd2.setValor(ii.toString());
+                    nd2.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    tmp.addHijo((Nodo)idn);
+                    tmp.addHijo((Nodo)oper);
+                    tmp.addHijo((Nodo)infor);
+                    tmp.addHijo(nd2);
+                    RESULT=tmp;
+            :};
+
+INFOR_FUNC ::= SINTAXWHILE_FUNC:inw INFOR_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inw);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+        | SINTAXFOR_FUNC:inf INFOR_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inf);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+        | SINTAXIF_FUNC:inf INFOR_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inf);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+        | VARIABLE:var INFOR_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+        | LLAMADAFUNC:llamada INFOR_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)llamada);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+        | ASIGNACIONVAL:asig INFOR_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)asig);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+        | CONSOLEWRITE:cs INFOR_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}  
+        | OPERACIONES:op INFOR_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)op);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+        | tk_comentario:com tk_Linea INFOR_FUNC:inmain {: 
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            tmp.addHijo((Nodo)inmain);
+            RESULT=tmp;
+        :}
+        | tk_comentario:com tk_Linea{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+        | SINTAXWHILE_FUNC:inwhile{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+       
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+          :}
+        | SINTAXFOR_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+        | SINTAXIF_FUNC:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+        | VARIABLE:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+        | LLAMADAFUNC:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+        | ASIGNACIONVAL:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+        | CONSOLEWRITE:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+        | OPERACIONES:inifunc{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+        | tk_exit tk_do tk_Linea{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("EXIT DO");           
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+        | tk_exit tk_function tk_Linea{:
+            Nodo tmp = new Nodo("IN FUNC FOR");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Exit Function"); 
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+        | tk_exit tk_for tk_Linea{:
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Exit Function");     
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :};
 
 /* 
 TERMINA CUERPO FUNCION
 */
 
-CUERPOPRO ::= SINTAXFOR CUERPOPRO
-        | SINTAXIF CUERPOPRO
-        | VARIABLE:var CUERPOPRO:inmain {: 
-        Nodo tmp = new Nodo("INMAIN");
+CUERPOMAIN ::= SINTAXFOR:sxfor CUERPOMAIN:inmain {: 
+            Nodo tmp = new Nodo("INMAIN");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxfor);
+            tmp.addHijo((Nodo)inmain);
+            RESULT=tmp;
+        :}
+        | SINTAXIF:sxif CUERPOMAIN:inmain {: 
+            Nodo tmp = new Nodo("INMAIN");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxif);
+            tmp.addHijo((Nodo)inmain);
+            RESULT=tmp;
+        :}
+        | VARIABLE:var CUERPOMAIN:inmain {: 
+            Nodo tmp = new Nodo("INMAIN");
             tmp.setNumNodo(parser.contador++);
             tmp.addHijo((Nodo)var);
             tmp.addHijo((Nodo)inmain);
             RESULT=tmp;
         :}
-        | LLAMADAFUNC CUERPOPRO
-        | ASIGNACIONVAL CUERPOPRO
-        | CONSOLEWRITE CUERPOPRO
-        | OPERACIONES CUERPOPRO   
-        | SINTAXWHILE CUERPOPRO
-        | tk_comentario tk_Linea CUERPOPRO
-        | ENDSUB:ends OPCPROCESOAUX:inmain {:
+        | LLAMADAFUNC:lfunc CUERPOMAIN:inmain {: 
+            Nodo tmp = new Nodo("INMAIN");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)lfunc);
+            tmp.addHijo((Nodo)inmain);
+            RESULT=tmp;
+        :}
+        | ASIGNACIONVAL:asigval CUERPOMAIN:inmain {: 
+             Nodo tmp = new Nodo("INMAIN");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)asigval);
+            tmp.addHijo((Nodo)inmain);
+            RESULT=tmp;
+        :}
+        | CONSOLEWRITE:cs CUERPOMAIN:inmain {: 
+            Nodo tmp = new Nodo("INMAIN");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            tmp.addHijo((Nodo)inmain);
+            RESULT=tmp;
+        :}
+        | OPERACIONES:oper CUERPOMAIN:inmain  {: 
+            Nodo tmp = new Nodo("INMAIN");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)oper);
+            tmp.addHijo((Nodo)inmain);
+            RESULT=tmp;
+        :}
+        | SINTAXWHILE:sxwhile CUERPOMAIN:inmain {: 
+              Nodo tmp = new Nodo("INMAIN");
+              tmp.setNumNodo(parser.contador++);
+              tmp.addHijo((Nodo)sxwhile);
+              tmp.addHijo((Nodo)inmain);
+              RESULT=tmp;
+        :}
+        | tk_comentario:com tk_Linea CUERPOMAIN:inmain {: 
+            Nodo tmp = new Nodo("INMAIN");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            tmp.addHijo((Nodo)inmain);
+            RESULT=tmp;
+        :}
+        | ENDSUB:ends {:
             Nodo tmp = new Nodo("INMAIN");
             tmp.setNumNodo(parser.contador++);
             tmp.addHijo((Nodo)ends);
-            tmp.addHijo((Nodo)inmain);
+            RESULT=tmp;
+        :}
+        | error tk_Linea CUERPOPRO;  
+
+CUERPOPRO ::= SINTAXFOR:sxfor CUERPOPRO:insubpro {: 
+            Nodo tmp = new Nodo("IN SUBPROC");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxfor);
+            tmp.addHijo((Nodo)insubpro);
+            RESULT=tmp;
+        :}
+        | SINTAXIF:sxif CUERPOPRO:insubpro {: 
+              Nodo tmp = new Nodo("IN SUBPROC");
+              tmp.setNumNodo(parser.contador++);
+              tmp.addHijo((Nodo)sxif);
+              tmp.addHijo((Nodo)insubpro);
+              RESULT=tmp;
+        :}
+        | VARIABLE:var CUERPOPRO:insubpro {: 
+            Nodo tmp = new Nodo("IN SUBPROC");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            tmp.addHijo((Nodo)insubpro);
+            RESULT=tmp;
+        :}
+        | LLAMADAFUNC:lfunc CUERPOPRO:insubpro {: 
+            Nodo tmp = new Nodo("IN SUBPROC");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)lfunc);
+            tmp.addHijo((Nodo)insubpro);
+            RESULT=tmp;
+        :}
+        | ASIGNACIONVAL:asigvar CUERPOPRO:insubpro {: 
+             Nodo tmp = new Nodo("IN SUBPROC");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)asigvar);
+            tmp.addHijo((Nodo)insubpro);
+            RESULT=tmp;
+        :}
+        | CONSOLEWRITE:cs CUERPOPRO:insubpro {: 
+            Nodo tmp = new Nodo("IN SUBPROC");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            tmp.addHijo((Nodo)insubpro);
+            RESULT=tmp;
+        :}
+        | OPERACIONES:oper CUERPOPRO:insubpro  {: 
+            Nodo tmp = new Nodo("IN SUBPROC");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)oper);
+            tmp.addHijo((Nodo)insubpro);
+            RESULT=tmp;
+        :}   
+        | SINTAXWHILE:sxwhile CUERPOPRO:insubpro  {: 
+            Nodo tmp = new Nodo("IN SUBPROC");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxwhile);
+            tmp.addHijo((Nodo)insubpro);
+            RESULT=tmp;
+        :}   
+        | tk_comentario:com tk_Linea CUERPOPRO:insubpro {: 
+            Nodo tmp = new Nodo("INMAIN");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            tmp.addHijo((Nodo)insubpro);
+            RESULT=tmp;
+        :}
+        | ENDSUB:ends {:
+            Nodo tmp = new Nodo("IN SUBPROC");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ends);
             RESULT=tmp;
         :}
         | error tk_Linea CUERPOPRO;   
 
-PARAMETROS ::= tk_byval tk_Identificador tk_as TIPOD PARAMETROS {: 
-            
+PARAMETROS ::= tk_byval tk_Identificador:i tk_as TIPOD:tipd  {: 
+                Nodo tmp = new Nodo("PARAMETROS");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                tmp.addHijo((Nodo)tipd);
+                RESULT = tmp;
             :}
-            | tk_Identificador tk_as TIPOD  PARAMETROS
-            | tk_Coma tk_byval tk_Identificador tk_as TIPOD PARAMETROS 
-            | tk_Coma tk_Identificador tk_as TIPOD  PARAMETROS
-            | tk_ParentesisC ;
+            | tk_Identificador:i tk_as TIPOD:tipd {: 
+                Nodo tmp = new Nodo("PARAMETROS");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                tmp.addHijo((Nodo)tipd);
+                RESULT = tmp;
+            :}
+            | tk_byval tk_Identificador:i tk_as TIPOD:tipd tk_Coma PARAMETROS:param {: 
+                Nodo tmp = new Nodo("PARAMETROS");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                tmp.addHijo((Nodo)tipd);
+                tmp.addHijo((Nodo)param);
+                RESULT = tmp;
+            :}
+            | tk_Identificador:i tk_as TIPOD:tipd tk_Coma PARAMETROS:param {: 
+                Nodo tmp = new Nodo("PARAMETROS");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Identificador");
+                nd1.setValor(i.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                tmp.addHijo((Nodo)tipd);
+                tmp.addHijo((Nodo)param);
+                RESULT = tmp;
+            :};
             
 VALOR ::= OPCBOOL:opcbool {: 
             Nodo tmp = new Nodo("VALOR");
@@ -631,12 +1567,87 @@ VARIABLE ::= tk_dim tk_Identificador:i tk_as TIPOD:tipod tk_Linea {:
                 RESULT = tmp;
             :}; 
             
-ASIGNACIONVAL ::= tk_Identificador tk_Igual VALOR tk_Linea
-                  | tk_Identificador tk_Igual OPERACIONES 
-                  | tk_Identificador tk_Igual LLAMADAFUNC  
-                  | tk_Identificador tk_Igual tk_cs tk_punto tk_readline tk_ParentesisA tk_ParentesisC tk_Linea
-                  | tk_cs tk_punto tk_readline tk_ParentesisA tk_ParentesisC tk_Linea
-                  | tk_Identificador tk_punto tk_Identificador tk_Igual tk_cs tk_punto tk_readline tk_ParentesisA tk_ParentesisC tk_Linea;
+ASIGNACIONVAL ::= tk_Identificador:i tk_Igual VALOR:val tk_Linea {: 
+                    Nodo tmp = new Nodo("Asignacion Variable");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Identificador");
+                    nd1.setValor(i.toString());
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    tmp.addHijo((Nodo)val);
+                    RESULT = tmp;
+                :}
+                  | tk_Identificador:i tk_Igual OPERACIONES:oper {: 
+                       Nodo tmp = new Nodo("Asignacion Variable");
+                       tmp.setNumNodo(parser.contador++);
+
+                       Nodo nd1 = new Nodo("Identificador");
+                       nd1.setValor(i.toString());
+                       nd1.setNumNodo(parser.contador++);
+
+                       tmp.addHijo(nd1);
+                       tmp.addHijo((Nodo)oper);
+                       RESULT = tmp;
+                    :}
+                  | tk_Identificador:i tk_Igual LLAMADAFUNC:llamfunc  {: 
+                        Nodo tmp = new Nodo("Asignacion Variable");
+                       tmp.setNumNodo(parser.contador++);
+
+                       Nodo nd1 = new Nodo("Identificador");
+                       nd1.setValor(i.toString());
+                       nd1.setNumNodo(parser.contador++);
+
+                       tmp.addHijo(nd1);
+                       tmp.addHijo((Nodo)llamfunc);
+                       RESULT = tmp;
+                    :}
+                  | tk_Identificador:i tk_Igual tk_cs tk_punto tk_readline:rd tk_ParentesisA tk_ParentesisC tk_Linea {: 
+                       Nodo tmp = new Nodo("Asignacion Variable");
+                       tmp.setNumNodo(parser.contador++);
+
+                       Nodo nd1 = new Nodo("Identificador");
+                       nd1.setValor(i.toString());
+                       nd1.setNumNodo(parser.contador++);
+
+                       Nodo nd2 = new Nodo("ReadLine");
+                       nd2.setNumNodo(parser.contador++);
+
+                       tmp.addHijo(nd1);
+                       tmp.addHijo(nd2);
+                       RESULT = tmp;
+                    :}
+                  | tk_cs tk_punto tk_readline tk_ParentesisA tk_ParentesisC tk_Linea {:
+                       Nodo tmp = new Nodo("Asignacion Variable");
+                       tmp.setNumNodo(parser.contador++);
+
+                       Nodo nd1 = new Nodo("ReadLine");
+                       nd1.setNumNodo(parser.contador++);
+
+                       tmp.addHijo(nd1);
+                       RESULT = tmp;
+                     :}
+                  | tk_Identificador:i tk_punto tk_Identificador:ii tk_Igual tk_cs tk_punto tk_readline:rd tk_ParentesisA tk_ParentesisC tk_Linea {: 
+                       Nodo tmp = new Nodo("Asignacion Variable");
+                       tmp.setNumNodo(parser.contador++);
+
+                       Nodo nd1 = new Nodo("Identificador");
+                       nd1.setValor(i.toString());
+                       nd1.setNumNodo(parser.contador++);
+                       
+                       Nodo nd2 = new Nodo("Identificador");
+                       nd2.setValor(ii.toString());
+                       nd2.setNumNodo(parser.contador++);
+
+                       Nodo nd3 = new Nodo("ReadLine");
+                       nd3.setNumNodo(parser.contador++);
+
+                       tmp.addHijo(nd1);
+                       tmp.addHijo(nd2);
+                       tmp.addHijo(nd3);
+                       RESULT = tmp;
+                    :};
 
 
 OPCBOOL ::= tk_true {:
@@ -760,8 +1771,6 @@ CONDICION ::= iDNUM:id OPCRELACIONALES:opcr iDNUM:idd {:
                     RESULT = tmp;
             :};
 
-AUMDEC ::= tk_Resta tk_Numero 
-        | tk_Numero ;
 
 OPERACIONES ::= iDNUM:id OPEARITMETICA:signo OPERACIONAUX:operb {:
                     Nodo tmp = new Nodo("Operacion");
@@ -1006,310 +2015,2150 @@ LLAMADAFUNC ::= tk_Identificador:i tk_ParentesisA IDENTIFICADORES:ids tk_Linea {
                 RESULT = tmp;
                :};
 
-CONSOLEWRITE ::= tk_cs tk_punto tk_writeline tk_ParentesisA tk_valorString tk_ParentesisC tk_Linea
-                | tk_cs tk_punto tk_writeline tk_ParentesisA tk_Identificador tk_ParentesisC tk_Linea;
+CONSOLEWRITE ::= tk_cs tk_punto tk_writeline tk_ParentesisA tk_valorString:val tk_ParentesisC tk_Linea{:
+                   Nodo tmp = new Nodo("console.writeline");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("ValorString");
+                    nd1.setNumNodo(parser.contador++);
+                    nd1.setValor(val.toString().replaceAll("\"", ""));
+
+                    tmp.addHijo(nd1);
+                    RESULT=tmp;
+                 :}
+                | tk_cs tk_punto tk_writeline:wr tk_ParentesisA tk_Identificador:i tk_ParentesisC tk_Linea {:
+                    Nodo tmp = new Nodo("console.writeline");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Identificador");
+                    nd1.setValor(i.toString());
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    RESULT=tmp;
+                :};
 
 /*
     IF ELSEIF ELSE
 */
+SINTAXIF ::= tk_if CONDICION:con tk_then tk_Linea INIF:inif tk_end tk_if tk_Linea{:
+            Nodo tmp = new Nodo("IF");
+            tmp.setNumNodo(parser.contador++);
 
-SINTAXIF ::= tk_if CONDICION tk_then tk_Linea INIF tk_end tk_if tk_Linea;
+            Nodo nd1 = new Nodo("End if");
+            nd1.setNumNodo(parser.contador++);
+            
+            tmp.addHijo((Nodo)con);
+            tmp.addHijo((Nodo)inif);
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+        :};
 
-SINTAXELSEIF::= CONDICION tk_then tk_Linea INELSEIF;
+SINTAXELSEIF::= CONDICION:con tk_then tk_Linea INELSEIF:elsef{:
+            Nodo tmp = new Nodo("ELSE IF");
+            tmp.setNumNodo(parser.contador++);
 
-INIF ::= SINTAXIF INIF
-         | VARIABLE INIF
-         | LLAMADAFUNC INIF
-         | ASIGNACIONVAL INIF
-         | OPERACIONES INIF
-         | CONSOLEWRITE INIF
-         | SINTAXFOR INIF 
-         | SINTAXWHILE INIF
-         | tk_comentario tk_Linea INIF
-         | tk_comentario tk_Linea
-         | SINTAXIF
-         | VARIABLE
-         | LLAMADAFUNC
-         | ASIGNACIONVAL
-         | CONSOLEWRITE
-         | OPERACIONES
-         | SINTAXFOR
-         | SINTAXWHILE
-         | tk_else tk_Linea INELSE
-         | tk_elseif SINTAXELSEIF; 
+            Nodo nd1 = new Nodo("End if");
+            nd1.setNumNodo(parser.contador++);
+            
+            tmp.addHijo((Nodo)con);
+            tmp.addHijo((Nodo)elsef);
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+        :};
 
-INELSE ::= SINTAXIF INELSE
-           | VARIABLE INELSE
-           | LLAMADAFUNC INELSE
-           | ASIGNACIONVAL INELSE
-           | OPERACIONES INELSE
-           | CONSOLEWRITE INELSE
-           | SINTAXFOR INELSE
-           | SINTAXWHILE INELSE
-           | tk_comentario tk_Linea INELSE
-           | tk_comentario tk_Linea
-           | SINTAXIF
-           | VARIABLE
-           | LLAMADAFUNC
-           | ASIGNACIONVAL
-           | CONSOLEWRITE
-           | OPERACIONES
-           | SINTAXFOR
-           | SINTAXWHILE;
+INIF ::= SINTAXIF:sif INIF:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sif);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+         | VARIABLE:var INIF:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+         | LLAMADAFUNC:var INIF:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+         | ASIGNACIONVAL:asig INIF:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)asig);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+         | OPERACIONES:op INIF:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)op);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+         | CONSOLEWRITE:cs INIF:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+         | SINTAXFOR:fr INIF:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)fr);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+         | SINTAXWHILE:wh INIF:inifunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)wh);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}
+         | tk_comentario:com tk_Linea INIF:inifunc{:
+            Nodo tmp = new Nodo("IN IF ");
+            tmp.setNumNodo(parser.contador++);
 
-INELSEIF ::=  SINTAXIF INELSEIF 
-               | VARIABLE INELSEIF 
-               | LLAMADAFUNC INELSEIF 
-               | ASIGNACIONVAL INELSEIF 
-               | tk_else tk_Linea INELSE 
-               | tk_elseif  SINTAXELSEIF 
-               | OPERACIONES INELSEIF 
-               | CONSOLEWRITE INELSEIF 
-               | SINTAXFOR INELSEIF
-               | SINTAXWHILE INELSEIF
-               | tk_comentario tk_Linea INELSEIF
-               | tk_comentario tk_Linea
-               | SINTAXIF
-               | VARIABLE
-               | LLAMADAFUNC
-               | ASIGNACIONVAL
-               | CONSOLEWRITE
-               | OPERACIONES
-               | SINTAXFOR
-               | SINTAXWHILE;
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+            :}
+         | tk_comentario:com tk_Linea{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+         | SINTAXIF:sxiffunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffunc);
+            RESULT=tmp;
+          :}
+         | VARIABLE:sxiffunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffunc);
+            RESULT=tmp;
+          :}
+         | LLAMADAFUNC:sxiffunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffunc);
+            RESULT=tmp;
+          :}
+         | ASIGNACIONVAL:sxiffunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffunc);
+            RESULT=tmp;
+          :}
+         | CONSOLEWRITE:sxiffunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffunc);
+            RESULT=tmp;
+          :}
+         | OPERACIONES:sxiffunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffunc);
+            RESULT=tmp;
+          :}
+         | SINTAXFOR:sxiffunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffunc);
+            RESULT=tmp;
+          :}
+         | SINTAXWHILE:sxiffunc{:
+            Nodo tmp = new Nodo("IN IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffunc);
+            RESULT=tmp;
+          :}
+         | tk_else tk_Linea INELSE:inifunc{:
+                    Nodo tmp = new Nodo("IN IF");
+                    tmp.setNumNodo(parser.contador++);
+                    Nodo nd1 = new Nodo("Else");
+                    nd1.setNumNodo(parser.contador++);
+                    tmp.addHijo(nd1);           
+                    nd1.addHijo((Nodo)inifunc);           
+                    RESULT=tmp;
+          :}  
+         | tk_elseif SINTAXELSEIF:inifunc{:
+                    Nodo tmp = new Nodo("IN IF");
+                    tmp.setNumNodo(parser.contador++);
+                    Nodo nd1 = new Nodo("ELSE IF");
+                    nd1.setNumNodo(parser.contador++);
+                    tmp.addHijo(nd1);           
+                    nd1.addHijo((Nodo)inifunc);           
+                    RESULT=tmp;
+          :};    
+
+INELSE ::= SINTAXIF:sif INELSE:els{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sif);
+            tmp.addHijo((Nodo)els);
+            RESULT=tmp;
+          :}
+           | VARIABLE:vr INELSE:els{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)vr);
+            tmp.addHijo((Nodo)els);
+            RESULT=tmp;
+          :}
+           | LLAMADAFUNC:llmda INELSE:els{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)llmda);
+            tmp.addHijo((Nodo)els);
+            RESULT=tmp;
+          :}
+           | ASIGNACIONVAL:vl INELSE:els{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)vl);
+            tmp.addHijo((Nodo)els);
+            RESULT=tmp;
+          :}
+           | OPERACIONES:op INELSE:els{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)op);
+            tmp.addHijo((Nodo)els);
+            RESULT=tmp;
+          :}
+           | CONSOLEWRITE:cs INELSE:els{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            tmp.addHijo((Nodo)els);
+            RESULT=tmp;
+          :}
+           | SINTAXFOR:fr INELSE:els{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)fr);
+            tmp.addHijo((Nodo)els);
+            RESULT=tmp;
+          :}
+           | SINTAXWHILE:wh INELSE:els{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)wh);
+            tmp.addHijo((Nodo)els);
+            RESULT=tmp;
+          :}
+           | tk_comentario:com tk_Linea INELSE:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE ");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+            :}
+           | tk_comentario:com tk_Linea{:
+            Nodo tmp = new Nodo("IN ELSE ");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+           | SINTAXIF:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} 
+           | VARIABLE:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} 
+           | LLAMADAFUNC:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} 
+           | ASIGNACIONVAL:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} 
+           | CONSOLEWRITE:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} 
+           | OPERACIONES:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} 
+           | SINTAXFOR:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} 
+           | SINTAXWHILE:ifn{:
+            Nodo tmp = new Nodo("IN ELSE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)ifn);
+            RESULT=tmp;
+          :} ;
+
+INELSEIF ::=  SINTAXIF:sif INELSEIF:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sif);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :}   
+               | VARIABLE:vr INELSEIF:elsif{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)vr);
+            tmp.addHijo((Nodo)elsif);
+            RESULT=tmp;
+          :}   
+               | LLAMADAFUNC:llms INELSEIF:elsif{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)llms);
+            tmp.addHijo((Nodo)elsif);
+            RESULT=tmp;
+          :}    
+               | ASIGNACIONVAL:vl INELSEIF:elsif{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)vl);
+            tmp.addHijo((Nodo)elsif);
+            RESULT=tmp;
+          :}   
+               | tk_else tk_Linea INELSE:inifunc{:
+                    Nodo tmp = new Nodo("IN ELSE IF");
+                    tmp.setNumNodo(parser.contador++);
+                    Nodo nd1 = new Nodo("ELSE");
+                    nd1.setNumNodo(parser.contador++);
+                    tmp.addHijo(nd1);           
+                    nd1.addHijo((Nodo)inifunc);           
+                    RESULT=tmp;
+          :}    
+               | tk_elseif  SINTAXELSEIF:inifunc{:
+                    Nodo tmp = new Nodo("IN ELSE IF");
+                    tmp.setNumNodo(parser.contador++);
+                    Nodo nd1 = new Nodo("ELSE IF");
+                    nd1.setNumNodo(parser.contador++);
+                    tmp.addHijo(nd1);           
+                    nd1.addHijo((Nodo)inifunc);           
+                    RESULT=tmp;
+          :}   
+               | OPERACIONES:pr INELSEIF:elsif{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)pr);
+            tmp.addHijo((Nodo)elsif);
+            RESULT=tmp;
+          :}   
+               | CONSOLEWRITE:cs INELSEIF :elsif{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            tmp.addHijo((Nodo)elsif);
+            RESULT=tmp;
+          :}   
+               | SINTAXFOR:fr INELSEIF:elsif{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)fr);
+            tmp.addHijo((Nodo)elsif);
+            RESULT=tmp;
+          :}   
+               | SINTAXWHILE:wl INELSEIF:elsif{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)wl);
+            tmp.addHijo((Nodo)elsif);
+            RESULT=tmp;
+          :}   
+               | tk_comentario:com tk_Linea INELSEIF:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+            :}
+               | tk_comentario:com tk_Linea{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+               | SINTAXIF:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+               | VARIABLE:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+               | LLAMADAFUNC:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+               | ASIGNACIONVAL:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+               | CONSOLEWRITE:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+               | OPERACIONES:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+               | SINTAXFOR:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :} 
+               | SINTAXWHILE:inifunc{:
+            Nodo tmp = new Nodo("IN ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)inifunc);
+            RESULT=tmp;
+          :};
+
 
 /*
     FOR
 */
 
-SINTAXFOR ::= tk_for tk_Identificador tk_Igual iDNUM tk_to iDNUM tk_step AUMDEC tk_Linea INFOR tk_next tk_Identificador tk_Linea
-            | tk_for tk_Identificador tk_Igual iDNUM tk_to OPERACIONES INFOR tk_next tk_Identificador tk_Linea;
+SINTAXFOR ::= tk_for tk_Identificador:i tk_Igual iDNUM:idn tk_to iDNUM:idnn tk_step AUMDEC:aumdec tk_Linea INFOR:infor tk_next tk_Identificador:ii tk_Linea {: 
+                    Nodo tmp = new Nodo("For");
+                    tmp.setNumNodo(parser.contador++);
 
-INFOR ::=  SINTAXFOR INFOR
-        | SINTAXIF_FOR INFOR
-        | VARIABLE INFOR
-        | LLAMADAFUNC INFOR
-        | ASIGNACIONVAL INFOR
-        | CONSOLEWRITE INFOR
-        | OPERACIONES INFOR   
-        | SINTAXWHILE_FOR INFOR
-        | tk_comentario tk_Linea INFOR
-        | tk_comentario tk_Linea
-        | SINTAXFOR
-        | SINTAXIF_FOR
-        | VARIABLE
-        | LLAMADAFUNC
-        | ASIGNACIONVAL
-        | CONSOLEWRITE
-        | OPERACIONES
-        | SINTAXWHILE_FOR
-        | tk_exit tk_for tk_Linea;
+                    Nodo nd1 = new Nodo("Identificador");
+                    nd1.setValor(i.toString());
+                    nd1.setNumNodo(parser.contador++);
+                    
+                    Nodo nd2 = new Nodo("Identificador");
+                    nd2.setValor(ii.toString());
+                    nd2.setNumNodo(parser.contador++);
+                    
 
-SINTAXIF_FOR::= tk_if CONDICION tk_then tk_Linea INIF_FOR tk_end tk_if tk_Linea;
+                    tmp.addHijo(nd1);
+                    tmp.addHijo((Nodo)idn);
+                    tmp.addHijo((Nodo)idnn);
+                    tmp.addHijo((Nodo)aumdec);
+                    tmp.addHijo((Nodo)infor);
+                    tmp.addHijo(nd2);
+                    RESULT=tmp;
+            :}
+            | tk_for tk_Identificador:i tk_Igual iDNUM:idn tk_to OPERACIONES:oper INFOR:infor tk_next tk_Identificador:ii tk_Linea {:
+                    Nodo tmp = new Nodo("For");
+                    tmp.setNumNodo(parser.contador++);
 
-SINTAXELSEIF_FOR ::= CONDICION tk_then tk_Linea INELSEIF_FOR;
+                    Nodo nd1 = new Nodo("Identificador");
+                    nd1.setValor(i.toString());
+                    nd1.setNumNodo(parser.contador++);
+                    
+                    Nodo nd2 = new Nodo("Identificador");
+                    nd2.setValor(ii.toString());
+                    nd2.setNumNodo(parser.contador++);
 
-INIF_FOR ::= SINTAXIF_FOR INIF_FOR
-         | VARIABLE INIF_FOR
-         | LLAMADAFUNC INIF_FOR
-         | ASIGNACIONVAL INIF_FOR
-         | OPERACIONES INIF_FOR
-         | CONSOLEWRITE INIF_FOR
-         | SINTAXFOR INIF_FOR
-         | SINTAXWHILE_FOR INIF_FOR
-         | tk_comentario tk_Linea INIF_FOR
-         | tk_comentario tk_Linea
-         | SINTAXIF_FOR
-         | VARIABLE
-         | LLAMADAFUNC
-         | ASIGNACIONVAL
-         | CONSOLEWRITE
-         | OPERACIONES
-         | SINTAXFOR
-         | SINTAXWHILE_FOR
-         | tk_exit tk_for tk_Linea
-         | tk_else tk_Linea INELSE_FOR
-         | tk_elseif SINTAXELSEIF_FOR; 
+                    tmp.addHijo(nd1);
+                    tmp.addHijo((Nodo)idn);
+                    tmp.addHijo((Nodo)oper);
+                    tmp.addHijo((Nodo)infor);
+                    tmp.addHijo(nd2);
+                    RESULT=tmp;
+            :};
 
-INELSEIF_FOR ::=  SINTAXIF_FOR INELSEIF_FOR 
-               | VARIABLE INELSEIF_FOR
-               | LLAMADAFUNC INELSEIF_FOR 
-               | ASIGNACIONVAL INELSEIF_FOR 
-               | tk_else tk_Linea INELSE_FOR 
-               | tk_elseif  SINTAXELSEIF_FOR 
-               | OPERACIONES INELSEIF_FOR 
-               | CONSOLEWRITE INELSEIF_FOR 
-               | SINTAXFOR INELSEIF_FOR
-               | SINTAXWHILE_FOR INELSEIF_FOR
-               | tk_comentario tk_Linea INELSEIF_FOR
-               | tk_comentario tk_Linea
-               | SINTAXIF_FOR
-               | VARIABLE
-               | LLAMADAFUNC
-               | ASIGNACIONVAL
-               | CONSOLEWRITE
-               | OPERACIONES
-               | SINTAXFOR
-               | SINTAXWHILE_FOR
-               | tk_exit tk_for tk_Linea;
+AUMDEC ::= tk_Resta:resta tk_Numero:num {:
+                    Nodo tmp = new Nodo("step");
+                    tmp.setNumNodo(parser.contador++);
 
-INELSE_FOR ::= SINTAXIF_FOR INELSE_FOR
-           | VARIABLE INELSE_FOR
-           | LLAMADAFUNC INELSE_FOR
-           | ASIGNACIONVAL INELSE_FOR
-           | OPERACIONES INELSE_FOR
-           | CONSOLEWRITE INELSE_FOR
-           | SINTAXFOR INELSE_FOR
-           | SINTAXWHILE_FOR INELSE_FOR
-           | tk_comentario tk_Linea INELSE_FOR
-           | tk_comentario tk_Linea
-           | SINTAXIF_FOR
-           | VARIABLE
-           | LLAMADAFUNC
-           | ASIGNACIONVAL
-           | CONSOLEWRITE
-           | OPERACIONES
-           | SINTAXFOR
-           | SINTAXWHILE_FOR
-           | tk_exit tk_for tk_Linea;
+                    Nodo nd1 = new Nodo("Negativo");
+                    nd1.setValor(resta.toString());
+                    nd1.setNumNodo(parser.contador++);
 
-SINTAXWHILE_FOR ::= tk_do tk_while CONDICION tk_Linea INWHILE_FOR tk_loop tk_Linea ;
+                    Nodo nd2 = new Nodo("Numero");
+                    nd2.setValor(num.toString());
+                    nd2.setNumNodo(parser.contador++);
 
-INWHILE_FOR ::= SINTAXFOR INWHILE_FOR
-        | VARIABLE INWHILE_FOR
-        | LLAMADAFUNC INWHILE_FOR
-        | ASIGNACIONVAL INWHILE_FOR
-        | CONSOLEWRITE INWHILE_FOR
-        | OPERACIONES INWHILE_FOR
-        | SINTAXWHILE_FOR INWHILE_FOR
-        | SINTAXIF_FOR INWHILE_FOR
-        | tk_comentario tk_Linea INWHILE_FOR
-        | tk_comentario tk_Linea
-        | SINTAXFOR
-        | VARIABLE
-        | LLAMADAFUNC
-        | ASIGNACIONVAL
-        | CONSOLEWRITE
-        | OPERACIONES
-        | SINTAXIF_FOR
-        | SINTAXWHILE_FOR
-        | tk_exit tk_do tk_Linea
-        | tk_exit tk_for tk_Linea;
+                    tmp.addHijo(nd1);
+                    tmp.addHijo(nd2);
+                    RESULT=tmp;
+            :}
+        | tk_Numero:num {:
+                    Nodo tmp = new Nodo("step");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd2 = new Nodo("Numero");
+                    nd2.setValor(num.toString());
+                    nd2.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd2);
+                    RESULT=tmp;
+            :};
+
+INFOR ::=  SINTAXFOR:sxfor INFOR:infor {:          
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxfor);
+            tmp.addHijo((Nodo)infor);
+            RESULT=tmp;
+        :}
+        | SINTAXIF_FOR:sxiffor INFOR:infor{:
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffor);
+            tmp.addHijo((Nodo)infor);
+            RESULT=tmp;
+        :}
+        | VARIABLE:var INFOR:infor{:          
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            tmp.addHijo((Nodo)infor);
+            RESULT=tmp;
+        :}
+        | LLAMADAFUNC:llam INFOR:infor{:          
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)llam);
+            tmp.addHijo((Nodo)infor);
+            RESULT=tmp;
+        :}
+        | ASIGNACIONVAL:asigval INFOR:infor{:          
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)asigval);
+            tmp.addHijo((Nodo)infor);
+            RESULT=tmp;
+        :}
+        | CONSOLEWRITE:cs INFOR:infor{:          
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            tmp.addHijo((Nodo)infor);
+            RESULT=tmp;
+        :}
+        | OPERACIONES:oper INFOR:infor{:          
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)oper);
+            tmp.addHijo((Nodo)infor);
+            RESULT=tmp;
+        :}   
+        | SINTAXWHILE_FOR:sxwhilefor INFOR:infor {:
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxwhilefor);
+            tmp.addHijo((Nodo)infor);
+            RESULT=tmp;
+        :}
+        | tk_comentario:com tk_Linea INFOR:infor {:
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            tmp.addHijo((Nodo)infor);
+            RESULT=tmp;
+            :}
+        | tk_comentario:com tk_Linea {:
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+            :}
+        | SINTAXFOR:sxfor {:          
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxfor);
+            RESULT=tmp;
+        :}
+        | SINTAXIF_FOR:sxiffor{:
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffor);
+            RESULT=tmp;
+        :}
+        | VARIABLE:var{:          
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            RESULT=tmp;
+        :}  
+        | LLAMADAFUNC:llamfunc{:          
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)llamfunc);
+            RESULT=tmp;
+        :}  
+        | ASIGNACIONVAL:asigval{:          
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)asigval);
+            RESULT=tmp;
+        :}  
+        | CONSOLEWRITE:cs{:          
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            RESULT=tmp;
+        :}  
+        | OPERACIONES:oper{:          
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)oper);
+            RESULT=tmp;
+        :}   
+        | SINTAXWHILE_FOR:sxwhilefor {:
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxwhilefor);
+            RESULT=tmp;
+        :}
+        | tk_exit tk_for tk_Linea{:
+            Nodo tmp = new Nodo("IN FOR");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Exit for");
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+        :};
+
+SINTAXIF_FOR::= tk_if CONDICION:con tk_then tk_Linea INIF_FOR:inif tk_end:endif tk_if tk_Linea{:
+            Nodo tmp = new Nodo("IF");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("End if");
+            nd1.setNumNodo(parser.contador++);
+            
+            tmp.addHijo((Nodo)con);
+            tmp.addHijo((Nodo)inif);
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+        :};
+
+SINTAXELSEIF_FOR ::= CONDICION:con tk_then tk_Linea INELSEIF_FOR:inelseiffor{:
+            Nodo tmp = new Nodo("ELSE IF");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)con);
+            tmp.addHijo((Nodo)inelseiffor);
+            RESULT=tmp;
+        :};
+
+INIF_FOR ::= SINTAXIF_FOR:sixiffor INIF_FOR:infor{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sixiffor);
+                tmp.addHijo((Nodo)infor);
+                RESULT=tmp;
+          :}
+         | VARIABLE:var INIF_FOR:infor{:
+                Nodo tmp = new Nodo("IN FOR IF ");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)var);
+                tmp.addHijo((Nodo)infor);
+                RESULT=tmp;
+          :}
+         | LLAMADAFUNC:llamfunc INIF_FOR:infor{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)llamfunc);
+                tmp.addHijo((Nodo)infor);
+                RESULT=tmp;
+          :}
+         | ASIGNACIONVAL:asigval INIF_FOR:infor{:
+                Nodo tmp = new Nodo("IN FOR IF ");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)asigval);
+                tmp.addHijo((Nodo)infor);
+                RESULT=tmp;
+          :}
+         | OPERACIONES:oper INIF_FOR:infor{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)oper);
+                tmp.addHijo((Nodo)infor);
+                RESULT=tmp;
+          :}
+         | CONSOLEWRITE:cs INIF_FOR:infor{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)cs);
+                tmp.addHijo((Nodo)infor);
+                RESULT=tmp;
+          :}
+         | SINTAXFOR:sxfor INIF_FOR:infor{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxfor);
+                tmp.addHijo((Nodo)infor);
+                RESULT=tmp;
+          :}
+         | SINTAXWHILE_FOR:sxwhilefor INIF_FOR:infor{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxwhilefor);
+                tmp.addHijo((Nodo)infor);
+                RESULT=tmp;
+            :}
+         | tk_comentario:com tk_Linea INIF_FOR:infor{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Comentario");
+                nd1.setValor(com.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                tmp.addHijo((Nodo)infor);
+                RESULT=tmp;
+            :}
+         | tk_comentario:com tk_Linea{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Comentario");
+                nd1.setValor(com.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                RESULT=tmp;
+            :}
+         | SINTAXIF_FOR:sixiffor{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sixiffor);
+                RESULT=tmp;
+          :}
+            | VARIABLE:var{:
+               Nodo tmp = new Nodo("IN FOR IF");
+               tmp.setNumNodo(parser.contador++);
+               tmp.addHijo((Nodo)var);
+               RESULT=tmp;
+          :}
+         | LLAMADAFUNC:llamfunc{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)llamfunc);
+                RESULT=tmp;
+          :}
+         | ASIGNACIONVAL:asigval{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)asigval);
+                RESULT=tmp;
+          :}
+         | CONSOLEWRITE:cs{:
+                Nodo tmp = new Nodo("IN FOR IF ");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)cs);
+                RESULT=tmp;
+          :}
+         | OPERACIONES:oper{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)oper);
+                RESULT=tmp;
+          :}
+         | SINTAXFOR:sxfor{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxfor);
+                RESULT=tmp;
+          :}
+         | SINTAXWHILE_FOR:sxwhilefor{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxwhilefor);
+                RESULT=tmp;
+            :}
+         | tk_exit tk_for tk_Linea{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Exit For");
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                RESULT=tmp;
+            :}
+         | tk_else tk_Linea INELSE_FOR:inelsefor {:
+                Nodo tmp = new Nodo("ELSE");
+                tmp.setNumNodo(parser.contador++);
+
+                tmp.addHijo((Nodo)inelsefor);
+                RESULT=tmp;
+            :}
+         | tk_elseif SINTAXELSEIF_FOR:sxelseiffor{:
+                Nodo tmp = new Nodo("IN FOR IF");
+                tmp.setNumNodo(parser.contador++);
+
+                tmp.addHijo((Nodo)sxelseiffor);
+                RESULT=tmp;
+            :}; 
+
+INELSEIF_FOR ::=  SINTAXIF_FOR:sxiffor INELSEIF_FOR:inelseiffor{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)sxiffor);
+                    tmp.addHijo((Nodo)inelseiffor);
+                    RESULT=tmp;
+                 :}
+               | VARIABLE:var INELSEIF_FOR:inelseiffor{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)var);
+                    tmp.addHijo((Nodo)inelseiffor);
+                    RESULT=tmp;
+                 :}
+               | LLAMADAFUNC:llamfunc INELSEIF_FOR:inelseiffor{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)llamfunc);
+                    tmp.addHijo((Nodo)inelseiffor);
+                    RESULT=tmp;
+                 :}
+               | ASIGNACIONVAL:asigval INELSEIF_FOR:inelseiffor {:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)asigval);
+                    tmp.addHijo((Nodo)inelseiffor);
+                    RESULT=tmp;
+                 :}
+               | tk_else tk_Linea INELSE_FOR:inelsefor{: 
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Else");
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    nd1.addHijo((Nodo)inelsefor);
+                    RESULT=tmp;    
+               :}
+               | tk_elseif SINTAXELSEIF_FOR:sxelseiffor{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Else If");
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    nd1.addHijo((Nodo)sxelseiffor);
+                    RESULT=tmp;
+                 :}
+               | OPERACIONES:oper INELSEIF_FOR:inelseiffor {:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)oper);
+                    tmp.addHijo((Nodo)inelseiffor);
+                    RESULT=tmp;
+                 :}
+               | CONSOLEWRITE:cs INELSEIF_FOR:inelseiffor {:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)cs);
+                    tmp.addHijo((Nodo)inelseiffor);
+                    RESULT=tmp;
+                 :}
+               | SINTAXFOR:sxfor INELSEIF_FOR:inelseiffor{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)sxfor);
+                    tmp.addHijo((Nodo)inelseiffor);
+                    RESULT=tmp;
+                 :}
+               | SINTAXWHILE_FOR:sxwhilefor INELSEIF_FOR:inelseiffor{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)sxwhilefor);
+                    tmp.addHijo((Nodo)inelseiffor);
+                    RESULT=tmp;
+                :}
+               | tk_comentario:com tk_Linea INELSEIF_FOR:inelseiffor{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Comentario");
+                    nd1.setValor(com.toString());
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    tmp.addHijo((Nodo)inelseiffor);
+                    RESULT=tmp;
+                :}
+               | tk_comentario:com tk_Linea{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Comentario");
+                    nd1.setValor(com.toString());
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    RESULT=tmp;
+                :}
+               | SINTAXIF_FOR:sxiffor{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)sxiffor);
+                    RESULT=tmp;
+                :}
+               | VARIABLE:var{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)var);
+                    RESULT=tmp;
+                :}
+               | LLAMADAFUNC:llamfunc{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)llamfunc);
+                    RESULT=tmp;
+                :}
+               | ASIGNACIONVAL:asigval{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)asigval);
+                    RESULT=tmp;
+                :}
+               | CONSOLEWRITE:cs{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)cs);
+                    RESULT=tmp;
+                :}
+               | OPERACIONES:oper{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)oper);
+                    RESULT=tmp;
+                :}
+               | SINTAXFOR:sxfor{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)sxfor);
+                    RESULT=tmp;
+                :}
+               | SINTAXWHILE_FOR:sxwhilefor{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)sxwhilefor);
+                    RESULT=tmp;
+                :}
+               | tk_exit tk_for tk_Linea{:
+                    Nodo tmp = new Nodo("IN FOR ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Exit For");
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    RESULT=tmp;
+            :};
+
+INELSE_FOR ::= SINTAXIF_FOR:sxiffor INELSE_FOR:inelsefor{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxiffor);
+                tmp.addHijo((Nodo)inelsefor);
+                RESULT=tmp;
+            :}
+           | VARIABLE:var INELSE_FOR:inelsefor{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)var);
+                tmp.addHijo((Nodo)inelsefor);
+                RESULT=tmp;
+            :}
+           | LLAMADAFUNC:llamfunc INELSE_FOR:inelsefor{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)llamfunc);
+                tmp.addHijo((Nodo)inelsefor);
+                RESULT=tmp;
+            :}
+           | ASIGNACIONVAL:asigval INELSE_FOR:inelsefor{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)asigval);
+                tmp.addHijo((Nodo)inelsefor);
+                RESULT=tmp;
+            :}
+           | OPERACIONES:oper INELSE_FOR:inelsefor{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)oper);
+                tmp.addHijo((Nodo)inelsefor);
+                RESULT=tmp;
+            :}
+           | CONSOLEWRITE:cs INELSE_FOR:inelsefor{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)cs);
+                tmp.addHijo((Nodo)inelsefor);
+                RESULT=tmp;
+            :}
+           | SINTAXFOR:sxfor INELSE_FOR:inelsefor{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxfor);
+                tmp.addHijo((Nodo)inelsefor);
+                RESULT=tmp;
+            :}
+           | SINTAXWHILE_FOR:sxwhilefor INELSE_FOR:inelsefor{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxwhilefor);
+                tmp.addHijo((Nodo)inelsefor);
+                RESULT=tmp;
+            :}
+           | tk_comentario:com tk_Linea INELSE_FOR:inelsefor{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Comentario");
+                nd1.setValor(com.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);           
+                tmp.addHijo((Nodo)inelsefor);
+                RESULT=tmp;
+            :}
+           | tk_comentario:com tk_Linea{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Comentario");
+                nd1.setValor(com.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                RESULT=tmp;
+            :}
+           | SINTAXIF_FOR:sxiffor{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxiffor);
+                RESULT=tmp;
+            :}
+           | VARIABLE:var{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)var);
+                RESULT=tmp;
+            :}
+           | LLAMADAFUNC:llamfunc{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)llamfunc);
+                RESULT=tmp;
+            :}
+           | ASIGNACIONVAL:asigval{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)asigval);
+                RESULT=tmp;
+            :}
+           | CONSOLEWRITE:cs{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)cs);
+                RESULT=tmp;
+            :}
+           | OPERACIONES:oper{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)oper);
+                RESULT=tmp;
+            :}
+           | SINTAXFOR:sxfor{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxfor);
+                RESULT=tmp;
+            :}
+           | SINTAXWHILE_FOR:sxwhilefor{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxwhilefor);
+                RESULT=tmp;
+            :}
+           | tk_exit tk_for tk_Linea{:
+                Nodo tmp = new Nodo("IN FOR ELSE");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Exit For");
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                RESULT=tmp;
+            :};
+
+SINTAXWHILE_FOR ::= tk_do tk_while CONDICION:con tk_Linea INWHILE_FOR:inwhile tk_loop tk_Linea {:
+            Nodo tmp = new Nodo("WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Loop");
+            nd1.setNumNodo(parser.contador++);
+        
+            tmp.addHijo((Nodo)con);
+            tmp.addHijo((Nodo)inwhile);
+            tmp.addHijo(nd1);
+            RESULT=tmp;    
+        :};
+
+INWHILE_FOR ::= SINTAXFOR:sxfor INWHILE_FOR:inwhilefor{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxfor);
+            tmp.addHijo((Nodo)inwhilefor);
+            RESULT=tmp;
+        :}
+        | VARIABLE:var INWHILE_FOR:inwhilefor{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            tmp.addHijo((Nodo)inwhilefor);
+            RESULT=tmp;
+        :}
+        | LLAMADAFUNC:llamfunc INWHILE_FOR:inwhilefor{:
+           Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)llamfunc);
+            tmp.addHijo((Nodo)inwhilefor);
+            RESULT=tmp;
+        :}
+        | ASIGNACIONVAL:asigval INWHILE_FOR:inwhilefor{:
+           Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)asigval);
+            tmp.addHijo((Nodo)inwhilefor);
+            RESULT=tmp;
+        :}
+        | CONSOLEWRITE:cs INWHILE_FOR:inwhilefor{:
+           Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            tmp.addHijo((Nodo)inwhilefor);
+            RESULT=tmp;
+        :}
+        | OPERACIONES:oper INWHILE_FOR:inwhilefor{:
+           Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)oper);
+            tmp.addHijo((Nodo)inwhilefor);
+            RESULT=tmp;
+        :}
+        | SINTAXWHILE_FOR:sxwhilefor INWHILE_FOR:inwhilefor{:
+           Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxwhilefor);
+            tmp.addHijo((Nodo)inwhilefor);
+            RESULT=tmp;
+        :}
+        | SINTAXIF_FOR:sxiffor INWHILE_FOR:inwhilefor{:
+           Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxiffor);
+            tmp.addHijo((Nodo)inwhilefor);
+            RESULT=tmp;
+        :}
+        | tk_comentario:com tk_Linea INWHILE_FOR:inwhilefor{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            tmp.addHijo((Nodo)inwhilefor);
+            RESULT=tmp;
+        :}
+        | tk_comentario:com tk_Linea{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+         :}
+        | SINTAXFOR:sxfor{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)sxfor);
+            RESULT=tmp;
+        :}
+        | VARIABLE:var{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)var);
+            RESULT=tmp;
+        :}
+        | LLAMADAFUNC:llamfunc{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)llamfunc);
+            RESULT=tmp;
+        :}
+        | ASIGNACIONVAL:asigval{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)asigval);
+            RESULT=tmp;
+        :}
+        | CONSOLEWRITE:cs{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)cs);
+            RESULT=tmp;
+        :}
+        | OPERACIONES:oper{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)oper);
+            RESULT=tmp;
+        :}
+        | SINTAXIF_FOR:sxiffor{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)sxiffor);
+            RESULT=tmp;
+        :}
+        | SINTAXWHILE_FOR:sxwhilefor{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)sxwhilefor);
+            RESULT=tmp;
+        :}
+        | tk_exit tk_do tk_Linea{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Exit do");
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+        :}
+        | tk_exit tk_for tk_Linea{:
+            Nodo tmp = new Nodo("IN FOR WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Exit for");
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+        :};
 
 /*
     DO WHILE
 */
 
-SINTAXIF_WHILE ::= tk_if CONDICION tk_then tk_Linea INIF_WHILE tk_end tk_if tk_Linea;
+SINTAXIF_WHILE ::= tk_if CONDICION:con tk_then tk_Linea INIF_WHILE:inifwhile tk_end tk_if tk_Linea{:
+            Nodo tmp = new Nodo("IF");
+            tmp.setNumNodo(parser.contador++);
 
-SINTAXELSEIF_WHILE ::= CONDICION tk_then tk_Linea INELSEIF_WHILE;
+            Nodo nd1 = new Nodo("End if");
+            nd1.setNumNodo(parser.contador++);
+            
+            tmp.addHijo((Nodo)con);
+            tmp.addHijo((Nodo)inifwhile);
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+        :};
 
-INIF_WHILE ::= SINTAXIF_WHILE INIF_WHILE
-         | VARIABLE INIF_WHILE
-         | LLAMADAFUNC INIF_WHILE
-         | ASIGNACIONVAL INIF_WHILE
-         | OPERACIONES INIF_WHILE
-         | CONSOLEWRITE INIF_WHILE
-         | SINTAXFOR_WHILE INIF_WHILE
-         | SINTAXWHILE INIF_WHILE
-         | tk_comentario tk_Linea INIF_WHILE
-         | tk_comentario tk_Linea
-         | SINTAXIF_WHILE
-         | VARIABLE
-         | LLAMADAFUNC
-         | ASIGNACIONVAL
-         | CONSOLEWRITE
-         | OPERACIONES
-         | SINTAXFOR_WHILE
-         | SINTAXWHILE
-         | tk_exit tk_do tk_Linea
-         | tk_else tk_Linea INELSE_WHILE
-         | tk_elseif SINTAXELSEIF_WHILE; 
+SINTAXELSEIF_WHILE ::= CONDICION:con tk_then tk_Linea INELSEIF_WHILE:inelseifwhile{:
+            Nodo tmp = new Nodo("ELSE IF");
+            tmp.setNumNodo(parser.contador++);
 
-INELSEIF_WHILE ::= SINTAXWHILE INELSEIF_WHILE 
-               | SINTAXIF_WHILE INELSEIF_WHILE 
-               | VARIABLE INELSEIF_WHILE 
-               | LLAMADAFUNC INELSEIF_WHILE 
-               | ASIGNACIONVAL INELSEIF_WHILE 
-               | tk_else tk_Linea INELSE_WHILE 
-               | tk_elseif  SINTAXELSEIF_WHILE
-               | OPERACIONES INELSEIF_WHILE 
-               | CONSOLEWRITE INELSEIF_WHILE 
-               | SINTAXFOR_WHILE INELSEIF_WHILE
-               | tk_comentario tk_Linea INELSEIF_WHILE
-               | tk_comentario tk_Linea
-               | SINTAXWHILE
-               | SINTAXIF_WHILE
-               | VARIABLE
-               | LLAMADAFUNC
-               | ASIGNACIONVAL
-               | CONSOLEWRITE
-               | OPERACIONES
-               | SINTAXFOR_WHILE
-               | tk_exit tk_do tk_Linea;
+            tmp.addHijo((Nodo)con);
+            tmp.addHijo((Nodo)inelseifwhile);
+            RESULT=tmp;
+        :};
 
-INELSE_WHILE ::= SINTAXWHILE INELSE_WHILE
-           | SINTAXIF_WHILE INELSE_WHILE
-           | VARIABLE INELSE_WHILE
-           | LLAMADAFUNC INELSE_WHILE
-           | ASIGNACIONVAL INELSE_WHILE
-           | OPERACIONES INELSE_WHILE
-           | CONSOLEWRITE INELSE_WHILE
-           | SINTAXFOR_WHILE INELSE_WHILE
-           | tk_comentario tk_Linea INELSE_WHILE
-           | tk_comentario tk_Linea
-           | SINTAXWHILE
-           | SINTAXIF_WHILE
-           | VARIABLE
-           | LLAMADAFUNC
-           | ASIGNACIONVAL
-           | CONSOLEWRITE
-           | OPERACIONES
-           | SINTAXFOR_WHILE
-           | tk_exit tk_do tk_Linea;
+INIF_WHILE ::= SINTAXIF_WHILE:sxifwhile INIF_WHILE:inifwhile{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxifwhile);
+                tmp.addHijo((Nodo)inifwhile);
+                RESULT=tmp;
+            :}
+         | VARIABLE:var INIF_WHILE:inifwhile{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)var);
+                tmp.addHijo((Nodo)inifwhile);
+                RESULT=tmp;
+            :}
+         | LLAMADAFUNC:llamfunc INIF_WHILE:inifwhile{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)llamfunc);
+                tmp.addHijo((Nodo)inifwhile);
+                RESULT=tmp;
+            :}
+         | ASIGNACIONVAL:asigval INIF_WHILE:inifwhile{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)asigval);
+                tmp.addHijo((Nodo)inifwhile);
+                RESULT=tmp;
+            :}
+         | OPERACIONES:oper INIF_WHILE:inifwhile{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)oper);
+                tmp.addHijo((Nodo)inifwhile);
+                RESULT=tmp;
+            :}
+         | CONSOLEWRITE:cs INIF_WHILE:inifwhile{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)cs);
+                tmp.addHijo((Nodo)inifwhile);
+                RESULT=tmp;
+            :}
+         | SINTAXFOR_WHILE:sxforwhile INIF_WHILE:inifwhile{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxforwhile);
+                tmp.addHijo((Nodo)inifwhile);
+                RESULT=tmp;
+            :}
+         | SINTAXWHILE:sxwhile INIF_WHILE:inifwhile{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxwhile);
+                tmp.addHijo((Nodo)inifwhile);
+                RESULT=tmp;
+            :}
+         | tk_comentario:com tk_Linea INIF_WHILE:inifwhile{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
 
-SINTAXFOR_WHILE ::= tk_for tk_Identificador tk_Igual iDNUM tk_to iDNUM tk_step AUMDEC tk_Linea INFOR_WHILE tk_next tk_Identificador tk_Linea
-            | tk_for tk_Identificador tk_Igual iDNUM tk_to OPERACIONES INFOR_WHILE tk_next tk_Identificador tk_Linea;
+                Nodo nd1 = new Nodo("Comentario");
+                nd1.setValor(com.toString());
+                nd1.setNumNodo(parser.contador++);
 
-INFOR_WHILE ::= SINTAXWHILE INFOR_WHILE
-        | SINTAXFOR_WHILE INFOR_WHILE 
-        | SINTAXIF_WHILE INFOR_WHILE 
-        | VARIABLE INFOR_WHILE 
-        | LLAMADAFUNC INFOR_WHILE 
-        | ASIGNACIONVAL INFOR_WHILE 
-        | CONSOLEWRITE INFOR_WHILE 
-        | OPERACIONES INFOR_WHILE 
-        | tk_comentario tk_Linea INFOR_WHILE
-        | tk_comentario tk_Linea
-        | SINTAXWHILE
-        | SINTAXFOR_WHILE
-        | SINTAXIF_WHILE
-        | VARIABLE
-        | LLAMADAFUNC
-        | ASIGNACIONVAL
-        | CONSOLEWRITE
-        | OPERACIONES
-        | tk_exit tk_do tk_Linea
-        | tk_exit tk_for tk_Linea;
+                tmp.addHijo(nd1);
+                tmp.addHijo((Nodo)inifwhile);
+                RESULT=tmp;
+            :}
+         | tk_comentario:com tk_Linea{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
 
-SINTAXWHILE ::= tk_do tk_while CONDICION tk_Linea INWHILE tk_loop tk_Linea ;
+                Nodo nd1 = new Nodo("Comentario");
+                nd1.setValor(com.toString());
+                nd1.setNumNodo(parser.contador++);
 
-INWHILE ::= SINTAXWHILE INWHILE
-        | SINTAXFOR_WHILE INWHILE
-        | SINTAXIF_WHILE INWHILE
-        | VARIABLE INWHILE
-        | LLAMADAFUNC INWHILE
-        | ASIGNACIONVAL INWHILE
-        | CONSOLEWRITE INWHILE
-        | OPERACIONES INWHILE
-        | tk_comentario tk_Linea INWHILE
-        | tk_comentario tk_Linea
-        | SINTAXWHILE
-        | SINTAXFOR_WHILE
-        | SINTAXIF_WHILE
-        | VARIABLE
-        | LLAMADAFUNC
-        | ASIGNACIONVAL
-        | CONSOLEWRITE
-        | OPERACIONES
-        | tk_exit tk_do tk_Linea;
+                tmp.addHijo(nd1);
+                RESULT=tmp;
+            :}
+         | SINTAXIF_WHILE:sxifwhile{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxifwhile);
+                RESULT=tmp;
+            :}
+         | VARIABLE:var{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)var);
+                RESULT=tmp;
+            :}
+         | LLAMADAFUNC:llamfunc{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)llamfunc);
+                RESULT=tmp;
+            :}
+         | ASIGNACIONVAL:asigval{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)asigval);
+                RESULT=tmp;
+            :}
+         | CONSOLEWRITE:cs{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)cs);
+                RESULT=tmp;
+            :}
+         | OPERACIONES:oper{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)oper);
+                RESULT=tmp;
+            :}
+         | SINTAXFOR_WHILE:sxforwhile{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxforwhile);
+                RESULT=tmp;
+            :}
+         | SINTAXWHILE:sxwhile{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxwhile);
+                RESULT=tmp;
+            :}
+         | tk_exit tk_do tk_Linea{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Exit Do");
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                RESULT=tmp;
+            :}
+         | tk_else tk_Linea INELSE_WHILE:inelsewhile{:
+                Nodo tmp = new Nodo("ELSE");
+                tmp.setNumNodo(parser.contador++);
+
+                tmp.addHijo((Nodo)inelsewhile);
+                RESULT=tmp;
+            :}
+         | tk_elseif SINTAXELSEIF_WHILE:sxelseifwhile{:
+                Nodo tmp = new Nodo("IN WHILE IF");
+                tmp.setNumNodo(parser.contador++);
+
+                tmp.addHijo((Nodo)sxelseifwhile);
+                RESULT=tmp;
+            :};
+
+INELSEIF_WHILE ::= SINTAXWHILE:sxwhile INELSEIF_WHILE:inelseifwhile {:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)sxwhile);
+                    tmp.addHijo((Nodo)inelseifwhile);
+                    RESULT=tmp;
+                :}
+               | SINTAXIF_WHILE:sxifwhile INELSEIF_WHILE:inelseifwhile{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)sxifwhile);
+                    tmp.addHijo((Nodo)inelseifwhile);
+                    RESULT=tmp;
+                :} 
+               | VARIABLE:var INELSEIF_WHILE:inelseifwhile {:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)var);
+                    tmp.addHijo((Nodo)inelseifwhile);
+                    RESULT=tmp;
+                :}
+               | LLAMADAFUNC:llamfunc INELSEIF_WHILE:inelseifwhile{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)llamfunc);
+                    tmp.addHijo((Nodo)inelseifwhile);
+                    RESULT=tmp;
+                :} 
+               | ASIGNACIONVAL:asigval INELSEIF_WHILE:inelseifwhile{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)asigval);
+                    tmp.addHijo((Nodo)inelseifwhile);
+                    RESULT=tmp;
+                :}
+               | tk_else tk_Linea INELSE_WHILE:inelsewhile{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Else");
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    nd1.addHijo((Nodo)inelsewhile);
+                    RESULT=tmp;
+                :}
+               | tk_elseif  SINTAXELSEIF_WHILE:sxelseifwhile{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Else If");
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    nd1.addHijo((Nodo)sxelseifwhile);
+                    RESULT=tmp;
+                :}
+               | OPERACIONES:oper INELSEIF_WHILE:inelseifwhile{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)oper);
+                    tmp.addHijo((Nodo)inelseifwhile);
+                    RESULT=tmp;
+                :} 
+               | CONSOLEWRITE:cs INELSEIF_WHILE:inelseifwhile {:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)cs);
+                    tmp.addHijo((Nodo)inelseifwhile);
+                    RESULT=tmp;
+                :}
+               | SINTAXFOR_WHILE:sxforwhile INELSEIF_WHILE:inelseifwhile{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)sxforwhile);
+                    tmp.addHijo((Nodo)inelseifwhile);
+                    RESULT=tmp;
+                :}
+               | tk_comentario:com tk_Linea INELSEIF_WHILE:inelseifwhile{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Comentario");
+                    nd1.setValor(com.toString());
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    tmp.addHijo((Nodo)inelseifwhile);
+                    RESULT=tmp;
+                :}
+               | tk_comentario:com tk_Linea{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Comentario");
+                    nd1.setValor(com.toString());
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    RESULT=tmp;
+                :}
+               | SINTAXWHILE:sxwhile{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)sxwhile);
+                    RESULT=tmp;
+                :}
+               | SINTAXIF_WHILE:sxifwhile{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)sxifwhile);
+                    RESULT=tmp;
+                :}
+               | VARIABLE:var{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)var);
+                    RESULT=tmp;
+                :}
+               | LLAMADAFUNC:llamfunc{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)llamfunc);
+                    RESULT=tmp;
+                :}
+               | ASIGNACIONVAL:asigval{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)asigval);
+                    RESULT=tmp;
+                :}
+               | CONSOLEWRITE:cs{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)cs);
+                    RESULT=tmp;
+                :}
+               | OPERACIONES:oper{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)oper);
+                    RESULT=tmp;
+                :}
+               | SINTAXFOR_WHILE:sxforwhile{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+                    tmp.addHijo((Nodo)sxforwhile);
+                    RESULT=tmp;
+                :}
+               | tk_exit tk_do tk_Linea{:
+                    Nodo tmp = new Nodo("IN WHILE ELSEIF");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Exit Do");
+                    nd1.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    RESULT=tmp;
+                :};
+
+INELSE_WHILE ::= SINTAXWHILE:sxwhile INELSE_WHILE:inelsewhile{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxwhile);
+                tmp.addHijo((Nodo)inelsewhile);
+                RESULT=tmp;
+            :}
+           | SINTAXIF_WHILE:sxifwhile INELSE_WHILE:inelsewhile{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxifwhile);
+                tmp.addHijo((Nodo)inelsewhile);
+                RESULT=tmp;
+            :}
+           | VARIABLE:var INELSE_WHILE:inelsewhile{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)var);
+                tmp.addHijo((Nodo)inelsewhile);
+                RESULT=tmp;
+            :}
+           | LLAMADAFUNC:llamfunc INELSE_WHILE:inelsewhile{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)llamfunc);
+                tmp.addHijo((Nodo)inelsewhile);
+                RESULT=tmp;
+            :}
+           | ASIGNACIONVAL:asigval INELSE_WHILE:inelsewhile{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)asigval);
+                tmp.addHijo((Nodo)inelsewhile);
+                RESULT=tmp;
+            :}
+           | OPERACIONES:oper INELSE_WHILE:inelsewhile{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)oper);
+                tmp.addHijo((Nodo)inelsewhile);
+                RESULT=tmp;
+            :}
+           | CONSOLEWRITE:cs INELSE_WHILE:inelsewhile{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)cs);
+                tmp.addHijo((Nodo)inelsewhile);
+                RESULT=tmp;
+            :}
+           | SINTAXFOR_WHILE:sxforwhile INELSE_WHILE:inelsewhile{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxforwhile);
+                tmp.addHijo((Nodo)inelsewhile);
+                RESULT=tmp;
+            :}
+           | tk_comentario:com tk_Linea INELSE_WHILE:inelsewhile{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Comentario");
+                nd1.setValor(com.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);           
+                tmp.addHijo((Nodo)inelsewhile);
+                RESULT=tmp;
+            :}
+           | tk_comentario:com tk_Linea{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Comentario");
+                nd1.setValor(com.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                RESULT=tmp;
+            :}
+           | SINTAXWHILE:sxwhile{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxwhile);
+                RESULT=tmp;
+            :}
+           | SINTAXIF_WHILE:sxifwhile{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxifwhile);
+                RESULT=tmp;
+            :}
+           | VARIABLE:var{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)var);
+                RESULT=tmp;
+            :}
+           | LLAMADAFUNC:llamfunc{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)llamfunc);
+                RESULT=tmp;
+            :}
+           | ASIGNACIONVAL:asigval{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)asigval);
+                RESULT=tmp;
+            :}
+           | CONSOLEWRITE:cs{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)cs);
+                RESULT=tmp;
+            :}
+           | OPERACIONES:oper{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)oper);
+                RESULT=tmp;
+            :}
+           | SINTAXFOR_WHILE:sxforwhile{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxforwhile);
+                RESULT=tmp;
+            :}
+           | tk_exit tk_do tk_Linea{:
+                Nodo tmp = new Nodo("IN WHILE ELSE");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Exit Do");
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                RESULT=tmp;
+            :};
+
+SINTAXFOR_WHILE ::= tk_for tk_Identificador:i tk_Igual iDNUM:idn tk_to iDNUM:idnn tk_step AUMDEC:aumdec tk_Linea INFOR_WHILE:inforwhile tk_next tk_Identificador:ii tk_Linea{: 
+                    Nodo tmp = new Nodo("For");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Identificador");
+                    nd1.setValor(i.toString());
+                    nd1.setNumNodo(parser.contador++);
+                    
+                    Nodo nd2 = new Nodo("Identificador");
+                    nd2.setValor(ii.toString());
+                    nd2.setNumNodo(parser.contador++);
+                    
+                    tmp.addHijo(nd1);
+                    tmp.addHijo((Nodo)idn);
+                    tmp.addHijo((Nodo)idnn);
+                    tmp.addHijo((Nodo)aumdec);
+                    tmp.addHijo((Nodo)inforwhile);
+                    tmp.addHijo(nd2);
+                    RESULT=tmp;
+            :}
+            | tk_for tk_Identificador:i tk_Igual iDNUM:idn tk_to OPERACIONES:oper INFOR_WHILE:inforwhile tk_next tk_Identificador:ii tk_Linea{:
+                    Nodo tmp = new Nodo("For");
+                    tmp.setNumNodo(parser.contador++);
+
+                    Nodo nd1 = new Nodo("Identificador");
+                    nd1.setValor(i.toString());
+                    nd1.setNumNodo(parser.contador++);
+                    
+                    Nodo nd2 = new Nodo("Identificador");
+                    nd2.setValor(ii.toString());
+                    nd2.setNumNodo(parser.contador++);
+
+                    tmp.addHijo(nd1);
+                    tmp.addHijo((Nodo)idn);
+                    tmp.addHijo((Nodo)oper);
+                    tmp.addHijo((Nodo)inforwhile);
+                    tmp.addHijo(nd2);
+                    RESULT=tmp;
+            :};
+
+INFOR_WHILE ::= SINTAXWHILE:sxwhile INFOR_WHILE:inforwhile{:
+                Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxwhile);
+                tmp.addHijo((Nodo)inforwhile);
+                RESULT=tmp;
+            :}
+        | SINTAXFOR_WHILE:sxforwhile INFOR_WHILE:inforwhile {:
+                Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxforwhile);
+                tmp.addHijo((Nodo)inforwhile);
+                RESULT=tmp;
+            :}
+        | SINTAXIF_WHILE:sxifwhile INFOR_WHILE:inforwhile {:
+                Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxifwhile);
+                tmp.addHijo((Nodo)inforwhile);
+                RESULT=tmp;
+            :}
+        | VARIABLE:var INFOR_WHILE:inforwhile {:
+                Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)var);
+                tmp.addHijo((Nodo)inforwhile);
+                RESULT=tmp;
+            :}
+        | LLAMADAFUNC:llamfunc INFOR_WHILE:inforwhile {:
+                Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)llamfunc);
+                tmp.addHijo((Nodo)inforwhile);
+                RESULT=tmp;
+            :}
+        | ASIGNACIONVAL:asigval INFOR_WHILE:inforwhile {:
+                Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)asigval);
+                tmp.addHijo((Nodo)inforwhile);
+                RESULT=tmp;
+            :}
+        | CONSOLEWRITE:cs INFOR_WHILE:inforwhile {:
+                Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)cs);
+                tmp.addHijo((Nodo)inforwhile);
+                RESULT=tmp;
+            :}
+        | OPERACIONES:oper INFOR_WHILE:inforwhile {:
+                Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)oper);
+                tmp.addHijo((Nodo)inforwhile);
+                RESULT=tmp;
+            :}
+        | tk_comentario:com tk_Linea INFOR_WHILE:inforwhile{:
+                Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Comentario");
+                nd1.setValor(com.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);           
+                tmp.addHijo((Nodo)inforwhile);
+                RESULT=tmp;
+            :}
+        | tk_comentario:com tk_Linea{:
+                Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+
+                Nodo nd1 = new Nodo("Comentario");
+                nd1.setValor(com.toString());
+                nd1.setNumNodo(parser.contador++);
+
+                tmp.addHijo(nd1);
+                RESULT=tmp;
+            :}
+        | SINTAXWHILE:sxwhile{:
+            Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxwhile);
+                RESULT=tmp;
+          :}
+        | SINTAXFOR_WHILE:sxforwhile{:
+            Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxforwhile);
+                RESULT=tmp;
+          :}
+        | SINTAXIF_WHILE:sxifwhile{:
+            Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)sxifwhile);
+                RESULT=tmp;
+          :}
+        | VARIABLE:var{:
+            Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)var);
+                RESULT=tmp;
+          :}
+        | LLAMADAFUNC:llamfunc{:
+            Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)llamfunc);
+                RESULT=tmp;
+          :}
+        | ASIGNACIONVAL:asigval{:
+            Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)asigval);
+                RESULT=tmp;
+          :}
+        | CONSOLEWRITE:cs{:
+            Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)cs);
+                RESULT=tmp;
+          :}
+        | OPERACIONES:oper{:
+            Nodo tmp = new Nodo("IN WHILE FOR");
+                tmp.setNumNodo(parser.contador++);
+                tmp.addHijo((Nodo)oper);
+                RESULT=tmp;
+          :}
+        | tk_exit tk_do tk_Linea{:
+            Nodo tmp = new Nodo("IN WHILE FOR");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Exit do");
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+        :}
+        | tk_exit tk_for tk_Linea{:
+            Nodo tmp = new Nodo("IN WHILE FOR");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Exit for");
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+        :};
+
+SINTAXWHILE ::= tk_do tk_while CONDICION:con tk_Linea INWHILE:inwhile tk_loop tk_Linea {:
+            Nodo tmp = new Nodo("WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Loop");
+            nd1.setNumNodo(parser.contador++);
+        
+            tmp.addHijo((Nodo)con);
+            tmp.addHijo((Nodo)inwhile);
+            tmp.addHijo(nd1);
+            RESULT=tmp;    
+        :};
+
+INWHILE ::= SINTAXWHILE:sxwhile INWHILE:inwhile{:
+            Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxwhile);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+        :}
+        | SINTAXFOR_WHILE:sxforwhile INWHILE:inwhile{:
+           Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxforwhile);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+        :}
+        | SINTAXIF_WHILE:sxifwhile INWHILE:inwhile{:
+           Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)sxifwhile);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+        :}
+        | VARIABLE:var INWHILE:inwhile{:
+           Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)var);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+        :}
+        | LLAMADAFUNC:llamfunc INWHILE:inwhile{:
+           Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)llamfunc);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+        :}
+        | ASIGNACIONVAL:asigval INWHILE:inwhile{:
+           Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)asigval);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+        :}
+        | CONSOLEWRITE:cs INWHILE:inwhile{:
+           Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)cs);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+        :}
+        | OPERACIONES:oper INWHILE:inwhile{:
+           Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+            tmp.addHijo((Nodo)oper);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+        :}
+        |  tk_comentario:com tk_Linea INWHILE:inwhile{:
+            Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            tmp.addHijo((Nodo)inwhile);
+            RESULT=tmp;
+        :}
+        | tk_comentario:com tk_Linea{:
+            Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Comentario");
+            nd1.setValor(com.toString());
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+         :}
+        | SINTAXWHILE:sxwhile{:
+            Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)sxwhile);
+            RESULT=tmp;
+        :}
+        | SINTAXFOR_WHILE:sxforwhile{:
+            Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)sxforwhile);
+            RESULT=tmp;
+        :}
+        | SINTAXIF_WHILE:sxifwhile{:
+            Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)sxifwhile);
+            RESULT=tmp;
+        :}
+        | VARIABLE:var{:
+            Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)var);
+            RESULT=tmp;
+        :}
+        | LLAMADAFUNC:llamfunc{:
+            Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)llamfunc);
+            RESULT=tmp;
+        :}
+        | ASIGNACIONVAL:asigval{:
+            Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)asigval);
+            RESULT=tmp;
+        :}
+        | CONSOLEWRITE:cs{:
+            Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)cs);
+            RESULT=tmp;
+        :}
+        | OPERACIONES:oper{:
+            Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            tmp.addHijo((Nodo)oper);
+            RESULT=tmp;
+        :}
+        | tk_exit tk_do tk_Linea{:
+            Nodo tmp = new Nodo("IN WHILE");
+            tmp.setNumNodo(parser.contador++);
+
+            Nodo nd1 = new Nodo("Exit do");
+            nd1.setNumNodo(parser.contador++);
+
+            tmp.addHijo(nd1);
+            RESULT=tmp;
+        :};
